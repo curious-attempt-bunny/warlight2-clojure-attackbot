@@ -4,13 +4,17 @@
         :main true)
     (:require handlers))
 
+(defn send-command
+    [command]
+    (println command))
+
 (defn parse
     [state line]
     (if (empty? line)
         state
         (let [parts            (clojure.string/split line #" ")
               [[handler args]] (for [s    [2 1]
-                                    :let  [name    (clojure.string/join "_" (take s parts))
+                                    :let  [name   (clojure.string/replace (clojure.string/join "_" (take s parts)) "/" "_")
                                           handler (find-var (symbol (str "handlers/" name)))
                                           args    (drop s parts)]
                                     :when handler]
