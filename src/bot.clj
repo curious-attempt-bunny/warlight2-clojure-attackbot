@@ -1,7 +1,4 @@
 (ns bot
-    (:gen-class
-        :name Bot
-        :main true)
     (:require handlers))
 
 (defn send-command
@@ -24,7 +21,7 @@
                 (do (prn handler args)
                 (apply handler (cons state args)))))))
 
-(defn main
+(defn -main
     [filename] 
     (let [input (if (nil? filename)
                     *in*
