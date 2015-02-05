@@ -17,12 +17,8 @@
                                     [handler args])]
             (if (nil? handler)
                 (throw (Exception. (str "Don't recognize: " line)))
-                (let [next-state (apply handler (cons state args))]
-                    (if (= state next-state)
-                        (do (prn handler args)
-                            (prn next-state)
-                            (prn)))
-                    next-state)))))
+                (do (prn handler args)
+                (apply handler (cons state args)))))))
 
 (defn main
     [filename] 

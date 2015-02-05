@@ -8,7 +8,7 @@
     [state & ids]
     state)
 
-(defn settings_your_bot
+(defn settings_your_bot 
     [state name]
     (assoc state :our_name name))
 
@@ -19,6 +19,18 @@
 (defn setup_map
     [state type & args]
     state)
+
+(defn setup_map_super_regions
+    [state & args]
+    (assoc state
+        :super_regions
+        (reduce
+            (fn [super_regions [id reward]]
+                (assoc super_regions
+                    (Integer/parseInt id)
+                    {:id (Integer/parseInt id) :reward (Integer/parseInt reward)}))
+            {}
+            (partition 2 args))))
 
 (defn pick_starting_region
     [state timebank & args]
