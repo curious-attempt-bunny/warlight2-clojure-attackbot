@@ -6,7 +6,7 @@
 
 (defn parse
     [state line]
-    (if (empty? line)
+    (if (or (empty? line) (= \# (first line)))
         state
         (let [parts            (clojure.string/split line #" ")
               [[handler args]] (for [s    [2 1]

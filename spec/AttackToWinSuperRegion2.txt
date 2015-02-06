@@ -1,0 +1,110 @@
+# http://theaigames.com/competitions/warlight-ai-challenge-2/games/54cee56d4b5ab2318efcf7c3
+# http://theaigames.com/competitions/warlight-ai-challenge-2/games/54cee56d4b5ab2318efcf7c3/dump
+
+settings timebank 10000
+
+settings time_per_move 500
+
+settings max_rounds 45
+
+settings your_bot player1
+
+settings opponent_bot player2
+
+setup_map super_regions 1 7 2 5 3 4
+
+setup_map regions 1 1 2 1 3 1 4 1 5 1 6 1 7 1 8 2 9 2 10 2 11 2 12 2 13 3 14 3 15 3 16 3 17 3 18 3
+
+setup_map neighbors 1 2,3,4,5 2 4,10,9,5 3 5,7 4 5 5 8,6,10,7 6 7,8 7 14,8,13,15,16 8 14,15,11,9,10 9 11,10 11 12 13 16 14 15 15 16,17,18 16 17
+
+setup_map wastelands 1
+
+settings starting_regions 7 8 13
+
+pick_starting_region 10000 7 8 13
+
+Output from your bot: "8"
+
+setup_map opponent_starting_regions 13
+
+settings starting_armies 5
+
+update_map 8 player1 2 5 neutral 2 14 neutral 2 15 neutral 2 11 neutral 2 9 neutral 2 10 neutral 2 6 neutral 2 7 neutral 2
+
+opponent_moves
+
+Round 1
+
+go place_armies 10000
+
+Output from your bot: "player1 place_armies 8 2,player1 place_armies 8 2,player1 place_armies 8 2,"
+
+go attack/transfer 10000
+
+Output from your bot: "No moves"
+
+settings starting_armies 5
+
+update_map 8 player1 7 5 neutral 2 14 neutral 2 15 neutral 2 11 neutral 2 9 neutral 2 10 neutral 2 6 neutral 2 7 neutral 2
+
+opponent_moves
+
+Round 2
+
+go place_armies 10000
+
+Output from your bot: "player1 place_armies 8 2,player1 place_armies 8 2,player1 place_armies 8 2,"
+
+go attack/transfer 10000
+
+Output from your bot: "player1 attack/transfer 8 11 5,"
+
+settings starting_armies 5
+
+update_map 8 player1 7 11 player1 4 5 neutral 2 14 neutral 2 15 neutral 2 9 neutral 2 10 neutral 2 6 neutral 2 7 player2 4 12 neutral 2
+
+opponent_moves player2 attack/transfer 13 7 5
+
+Round 3
+
+go place_armies 10000
+
+Output from your bot: "player1 place_armies 11 2,player1 place_armies 8 2,player1 place_armies 8 2,"
+
+go attack/transfer 10000
+
+Output from your bot: "player1 attack/transfer 8 9 5,player1 attack/transfer 11 8 5,"
+
+settings starting_armies 5
+
+update_map 8 player1 10 9 player1 4 11 player1 1 5 neutral 2 14 neutral 2 15 neutral 2 10 neutral 2 6 neutral 2 7 player2 1 2 neutral 2 12 neutral 2
+
+opponent_moves player2 attack/transfer 7 13 3
+
+Round 4
+
+go place_armies 10000
+
+Output from your bot: "player1 place_armies 11 2,player1 place_armies 11 2,player1 place_armies 8 2,"
+
+go attack/transfer 10000
+
+Output from your bot: "player1 attack/transfer 8 10 5,player1 attack/transfer 9 8 5,"
+
+settings starting_armies 5
+
+update_map 8 player1 9 9 player1 1 10 player1 4 11 player1 5 5 neutral 2 14 neutral 2 15 neutral 2 6 neutral 2 7 player2 4 2 neutral 2 12 neutral 2
+
+opponent_moves player2 place_armies 7 2 player2 place_armies 7 1
+
+Round 5
+
+go place_armies 10000
+
+Output from your bot: "player1 place_armies 10 2,player1 place_armies 11 2,player1 place_armies 10 2,"
+
+go attack/transfer 10000
+
+# Valid: [player1 attack/transfer 11 12 4]
+# Valid: [player1 attack/transfer 11 12 5]
+# Valid: [player1 attack/transfer 11 12 6]

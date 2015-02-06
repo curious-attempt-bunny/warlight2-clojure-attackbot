@@ -1,0 +1,70 @@
+# http://theaigames.com/competitions/warlight-ai-challenge-2/games/54cedc994b5ab2318efcf746
+# http://theaigames.com/competitions/warlight-ai-challenge-2/games/54cedc994b5ab2318efcf746/dump
+
+settings timebank 10000
+
+settings time_per_move 500
+
+settings max_rounds 42
+
+settings your_bot player1
+
+settings opponent_bot player2
+
+setup_map super_regions 1 3 2 1 3 1 4 4 5 0
+
+setup_map regions 1 1 2 1 3 1 4 1 5 1 6 2 7 2 8 3 9 3 10 4 11 4 12 4 13 4 14 4 15 4 16 5 17 5
+
+setup_map neighbors 1 2 2 3,5 3 9,4,8,5 5 10,7,6,8 6 7 7 10 8 9,11,10 9 16,11 10 11,12,13 11 14,16,17,13 12 13 13 14,15 14 17,15 16 17
+
+setup_map wastelands 10
+
+settings starting_regions 4 7 9 14 17
+
+pick_starting_region 10000 4 7 9 14 17
+
+Output from your bot: "7"
+
+pick_starting_region 10000 9 17
+
+Output from your bot: "9"
+
+setup_map opponent_starting_regions 4 14
+
+settings starting_armies 5
+
+update_map 7 player1 2 9 player1 2 6 neutral 2 5 neutral 2 10 neutral 10 3 neutral 2 8 neutral 2 16 neutral 2 11 neutral 2
+
+opponent_moves
+
+Round 1
+
+go place_armies 10000
+
+Output from your bot: "player1 place_armies 7 2,player1 place_armies 7 2,player1 place_armies 9 2,"
+
+go attack/transfer 10000
+
+Output from your bot: "No moves"
+
+settings starting_armies 5
+
+update_map 7 player1 6 9 player1 3 6 neutral 2 5 neutral 2 10 neutral 10 3 neutral 2 8 neutral 2 16 neutral 2 11 neutral 2
+
+opponent_moves
+
+Round 2
+
+go place_armies 10000
+
+Output from your bot: "player1 place_armies 9 2,player1 place_armies 7 2,player1 place_armies 7 2,"
+
+go attack/transfer 10000
+
+# Valid: player1 attack/transfer 7 6 3,
+# Valid: player1 attack/transfer 7 6 4,
+# Valid: player1 attack/transfer 7 6 5,
+# Valid: player1 attack/transfer 7 6 6,
+# Valid: player1 attack/transfer 7 6 7,
+# Valid: player1 attack/transfer 7 6 8,
+# Valid: player1 attack/transfer 7 6 9,
