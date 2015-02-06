@@ -17,14 +17,14 @@
                                     [handler args])]
             (if (nil? handler)
                 (throw (Exception. (str "Don't recognize: " line)))
-                (do (prn handler args)
-                (apply handler (cons state args)))))))
+                ; (do (prn handler args)
+                (apply handler (cons state args)))))) ;)
 
 (defn -main
-    [filename] 
-    (let [input (if (nil? filename)
+    [& args] 
+    (let [input (if (empty? args)
                     *in*
-                    (java.io.FileReader. filename))]
+                    (java.io.FileReader. (first args)))]
         (reduce parse {} (line-seq (java.io.BufferedReader. input)))))
 
 ;; ------- handlers --------
@@ -132,3 +132,7 @@
 (defn go_attack_transfer
     [state timebank]
     state)
+
+; --------
+
+(bot/-main)
