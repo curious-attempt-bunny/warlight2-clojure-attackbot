@@ -38,7 +38,9 @@
             (fn [regions [id super_region_id]]
                 (assoc regions
                     (Integer/parseInt id)
-                    {:id (Integer/parseInt id) :super_region_id (Integer/parseInt super_region_id)}))
+                    {   :id (Integer/parseInt id)
+                        :super_region_id (Integer/parseInt super_region_id)
+                        :armies 2}))
             {}
             (partition 2 args))))
 
@@ -69,8 +71,8 @@
         (map #(Integer/parseInt %) ids)))
 
 (defn pick_starting_region
-    [state timebank & args]
-    (bot/send-command (rand-nth args))
+    [state timebank & ids]
+    (bot/send-command (brain/pick_starting_region state (map #(Integer/parseInt %) ids)))
     state)
 
 (defn Output

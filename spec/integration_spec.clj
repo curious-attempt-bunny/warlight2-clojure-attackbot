@@ -1,7 +1,9 @@
 (ns integration-spec
   (:require [speclj.core :refer :all]
             [bot :refer :all]
-            [handlers :refer :all]))
+            [state]
+            [brain]
+            [handlers]))
 
 (defn verify
     [game-name]
