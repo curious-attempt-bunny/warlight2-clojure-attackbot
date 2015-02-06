@@ -12,3 +12,8 @@
                         (reduce +))]
         ; (.println *err* armies)
         armies))
+
+(defn our_regions
+    [state]
+    (->> (vals (:regions state))
+        (filter #(= (:owner %) (:our_name state)))))

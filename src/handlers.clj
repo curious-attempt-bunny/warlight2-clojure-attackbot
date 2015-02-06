@@ -81,7 +81,17 @@
 
 (defn update_map
     [state & args]
-    state)
+    (reduce
+        (fn [state [region_id owner armies]]
+            (-> state
+                (assoc-in
+                    [:regions (Integer/parseInt region_id) :owner]
+                    owner)
+                (assoc-in
+                    [:regions (Integer/parseInt region_id) :armies]
+                    (Integer/parseInt armies))))
+        state
+        (partition 3 args)))
 
 ; left as an exercise for the reader
 (defn opponent_moves
@@ -94,10 +104,11 @@
 
 (defn go_place_armies
     [state timebank]
-    ; (let [state      (assoc state :timebank timebank)
-    ;       placements (brain/army_placements state)
-    ;       command    (clojure.string/join
-    ;                     (map (fn )))]
+    (->> (brain/place_armies state)
+        (map (fn [[id armies]]
+                (str (:our_name state) " place_armies " id " " armies)))
+        (clojure.string/join ",")
+        (bot/send-command))
     state)
 
 (defn go_attack_transfer

@@ -46,4 +46,6 @@ go place_armies 10000
 
 Output from your bot: "player1 place_armies 7 2,player1 place_armies 14 2,player1 place_armies 3 2,"
 
-# Valid: ![player1 place_armies 3]
+## Valid: ![player1 place_armies 3]
+# Valid: [player1 place_armies 7 ]
+# Valid: [player1 place_armies 14 ]

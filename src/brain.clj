@@ -10,3 +10,9 @@
             >)
         first))
             
+(defn place_armies
+    [state]
+    (bot/log (state/our_regions state))
+    [[(->> (state/our_regions state)
+        (map :id)
+        (rand-nth)) (:starting_armies state)]])

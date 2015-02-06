@@ -7,7 +7,9 @@
 (defn parse
     [state line]
     (if (or (empty? line) (= \# (first line)))
-        state
+        ; (do (.println *err* state)
+            state
+            ; )
         (let [parts            (clojure.string/split line #" ")
               [[handler args]] (for [s    [2 1]
                                     :let  [name   (clojure.string/replace (clojure.string/join "_" (take s parts)) "/" "_")
@@ -23,3 +25,7 @@
 (defn -main
     [] 
     (reduce parse {} (line-seq (java.io.BufferedReader. *in*))))
+
+(defn log
+    [arg]
+    (.println *err* (pr-str arg)))

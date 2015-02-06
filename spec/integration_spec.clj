@@ -24,10 +24,12 @@
             (let [output   (String. (.toByteArray out))
                   actual   (last (clojure.string/split-lines output))
                   expected (->> (re-seq #"(?m)^# Valid: (.*)$" game) (map last))]
-                (it (str "should output " (clojure.string/join " OR " expected))
+                (it (str "should output " (clojure.string/join " OR " expected) " actual: " actual)
                     (should (some (partial satisfy actual) expected)))))))
 
 (describe "Sample game"
     (verify "PickSmall")
 
-    (verify "PlaceArmiesInHighestPriorityRegions"))
+    (verify "PlaceArmiesInHighestPriorityRegions")
+
+    (verify "PlaceArmiesInRegionsToAttackFromToWinTheRegion"))
