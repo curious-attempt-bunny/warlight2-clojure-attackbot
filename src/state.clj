@@ -6,12 +6,9 @@
 
 (defn super_region_armies
     [state super_region]
-    (->> (vals (:regions state))
-        ; (map #(.println *err* (:super_region_id %)))
-        (filter #(= (:super_region_id %) (:id super_region)))
-        ; (count)
-        ; (map #(.println *err* %))
-        (map :armies)
-        (reduce +)
-        ; (first)
-    ))
+    (let [armies (->> (vals (:regions state))
+                        (filter #(= (:super_region_id %) (:id super_region)))
+                        (map :armies)
+                        (reduce +))]
+        ; (.println *err* armies)
+        armies))

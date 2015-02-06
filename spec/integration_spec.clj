@@ -5,6 +5,13 @@
             [brain]
             [handlers]))
 
+(defn satisfy
+    [actual expected]
+    (case (first expected)
+        \! (not (satisfy actual (subs expected 1 (dec (count expected)))))
+        \[ (.contains actual (subs expected 1 (dec (count expected))))
+        (= actual expected)))
+
 (defn verify
     [game-name]
     (describe game-name
@@ -18,7 +25,9 @@
                   actual   (last (clojure.string/split-lines output))
                   expected (->> (re-seq #"(?m)^# Valid: (.*)$" game) (map last))]
                 (it (str "should output " (clojure.string/join " OR " expected))
-                    (should-contain actual expected))))))
+                    (should (some (partial satisfy actual) expected)))))))
 
 (describe "Sample game"
-    (verify "PickSmall"))
+    (verify "PickSmall")
+
+    (verify "PlaceArmiesInHighestPriorityRegions"))
