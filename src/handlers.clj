@@ -40,7 +40,9 @@
                     (Integer/parseInt id)
                     {   :id (Integer/parseInt id)
                         :super_region_id (Integer/parseInt super_region_id)
-                        :armies 2}))
+                        :armies 2
+                        :neighbours []
+                        }))
             {}
             (partition 2 args))))
 
@@ -50,10 +52,16 @@
         (reduce
             (fn [state [_region_id _neighbours]]
                 (let [region_id  (Integer/parseInt _region_id)
-                      neighbours (map #(Integer/parseInt %) (clojure.string/split _neighbours #","))]
-                    (assoc-in state
-                        [:regions region_id :neighbours]
-                        neighbours)))
+                      neighbours (map #(Integer/parseInt %) (clojure.string/split _neighbours #","))
+                      state2     (update-in state
+                                    [:regions region_id :neighbours]
+                                    (partial concat neighbours))]
+                        (reduce (fn [state neighbour_id]
+                            (update-in state
+                                [:regions neighbour_id :neighbours]
+                                (partial cons region_id)))
+                            state
+                            neighbours)))
             state)))
 
 (defn setup_map_wastelands
@@ -123,7 +131,6 @@
             (bot/send-command "No moves")
             (->> moves
                 (map (fn [[from_id to_id armies]]
-                        (bot/log [from_id to_id armies])
                         (str (:our_name state) " attack/transfer " from_id " " to_id " " armies)))
                 (clojure.string/join ",")
                 (bot/send-command))))

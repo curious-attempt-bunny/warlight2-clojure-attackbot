@@ -21,5 +21,4 @@
     (->> (state/our_regions state)
         (filter #(> (:armies %) 1))
         (map (fn [region]
-            (bot/log [(:id region) (rand-nth (:neighbours region)) (dec (:armies region))])
             [(:id region) (rand-nth (:neighbours region)) (dec (:armies region))]))))
