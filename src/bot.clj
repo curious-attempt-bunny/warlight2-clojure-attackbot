@@ -1,5 +1,9 @@
 (ns bot)
 
+(defn log
+    [arg]
+    (.println *err* (pr-str arg)))
+
 (defn send-command
     [command]
     (println command))
@@ -25,7 +29,3 @@
 (defn -main
     [] 
     (reduce parse {} (line-seq (java.io.BufferedReader. *in*))))
-
-(defn log
-    [arg]
-    (.println *err* (pr-str arg)))

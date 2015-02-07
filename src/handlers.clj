@@ -60,7 +60,7 @@
                             (update-in state
                                 [:regions neighbour_id :neighbours]
                                 (partial cons region_id)))
-                            state
+                            state2
                             neighbours)))
             state)))
 
@@ -116,13 +116,21 @@
     [state timebank]
     (let [moves (brain/place_armies state)]
         (if (empty? moves)
-            (bot/send-command "No moves")
-            (->> moves
-                (map (fn [[id armies]]
-                        (str (:our_name state) " place_armies " id " " armies)))
-                (clojure.string/join ",")
-                (bot/send-command))))
-    state)
+            (do
+                (bot/send-command "No moves")
+                state)
+            (do
+                (->> moves
+                    (map (fn [[id armies]]
+                            (str (:our_name state) " place_armies " id " " armies)))
+                    (clojure.string/join ",")
+                    (bot/send-command))
+                (reduce (fn [state [id armies]]
+                    (update-in state
+                        [:regions id :armies]
+                        (partial + armies)))
+                    state
+                    moves)))))
 
 (defn go_attack_transfer
     [state timebank]
