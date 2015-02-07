@@ -12,7 +12,14 @@
             
 (defn place_armies
     [state]
-    (bot/log (state/our_regions state))
     [[(->> (state/our_regions state)
         (map :id)
         (rand-nth)) (:starting_armies state)]])
+
+(defn attack
+    [state]
+    (->> (state/our_regions state)
+        (filter #(> (:armies %) 1))
+        (map (fn [region]
+            (bot/log [(:id region) (rand-nth (:neighbours region)) (dec (:armies region))])
+            [(:id region) (rand-nth (:neighbours region)) (dec (:armies region))]))))

@@ -46,13 +46,15 @@
 
 (defn setup_map_neighbors
     [state & args]
-    (reduce
-        (fn [state [region_id neighbours]]
-            (assoc-in state
-                [:regions (Integer/parseInt region_id) :neighbours]
-                (map #(Integer/parseInt %) (clojure.string/split neighbours #","))))
-        state
-        (partition 2 args)))
+    (->> (partition 2 args)
+        (reduce
+            (fn [state [_region_id _neighbours]]
+                (let [region_id  (Integer/parseInt _region_id)
+                      neighbours (map #(Integer/parseInt %) (clojure.string/split _neighbours #","))]
+                    (assoc-in state
+                        [:regions region_id :neighbours]
+                        neighbours)))
+            state)))
 
 (defn setup_map_wastelands
     [state & wasteland_ids]
@@ -116,5 +118,13 @@
 
 (defn go_attack_transfer
     [state timebank]
-    (bot/send-command "No moves")
+    (let [moves (brain/attack state)]
+        (if (empty? moves)
+            (bot/send-command "No moves")
+            (->> moves
+                (map (fn [[from_id to_id armies]]
+                        (bot/log [from_id to_id armies])
+                        (str (:our_name state) " attack/transfer " from_id " " to_id " " armies)))
+                (clojure.string/join ",")
+                (bot/send-command))))
     state)

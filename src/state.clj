@@ -10,7 +10,6 @@
                         (filter #(= (:super_region_id %) (:id super_region)))
                         (map :armies)
                         (reduce +))]
-        ; (.println *err* armies)
         armies))
 
 (defn our_regions
