@@ -12,7 +12,7 @@
             
 (defn place_armies
     [state]
-    [[(->> (state/our_regions state)
+    [[(->> (state/border_regions state)
         (map :id)
         (rand-nth)) (:starting_armies state)]])
 

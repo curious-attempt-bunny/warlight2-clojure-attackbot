@@ -16,3 +16,12 @@
     [state]
     (->> (vals (:regions state))
         (filter #(= (:owner %) (:our_name state)))))
+
+(defn border_regions
+    [state]
+    (->> (our_regions state)
+        (filter (fn [region]
+            (some (fn [neighbour_id]
+                    (not= (:our_name state)
+                        (get-in state [:regions neighbour_id :owner])))
+                (:neighbours region))))))
