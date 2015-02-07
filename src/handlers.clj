@@ -104,13 +104,17 @@
 
 (defn go_place_armies
     [state timebank]
-    (->> (brain/place_armies state)
-        (map (fn [[id armies]]
-                (str (:our_name state) " place_armies " id " " armies)))
-        (clojure.string/join ",")
-        (bot/send-command))
+    (let [moves (brain/place_armies state)]
+        (if (empty? moves)
+            (bot/send-command "No moves")
+            (->> moves
+                (map (fn [[id armies]]
+                        (str (:our_name state) " place_armies " id " " armies)))
+                (clojure.string/join ",")
+                (bot/send-command))))
     state)
 
 (defn go_attack_transfer
     [state timebank]
+    (bot/send-command "No moves")
     state)
