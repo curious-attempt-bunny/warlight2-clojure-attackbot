@@ -68,9 +68,13 @@
     [state & wasteland_ids]
     (reduce
         (fn [state region_id]
-            (assoc-in state
-                [:regions (Integer/parseInt region_id) :wasteland]
-                true))
+            (-> state
+                (assoc-in
+                    [:regions (Integer/parseInt region_id) :wasteland]
+                    true)
+                (assoc-in
+                    [:regions (Integer/parseInt region_id) :armies]
+                    10)))
         state
         wasteland_ids))
 
@@ -85,9 +89,43 @@
     (bot/send-command (brain/pick_starting_region state (map #(Integer/parseInt %) ids)))
     state)
 
+(defn add-placements
+    [state args]
+    (reduce
+        (fn [state arg]
+            (let [args                     (clojure.string/split arg #" ")
+                  [_ _ _region_id _armies] args
+                  region_id                (Integer/parseInt _region_id)
+                  armies                   (Integer/parseInt _armies)]
+                (update-in state
+                    [:regions region_id :armies]
+                    (partial + armies))))
+        state
+        args))
+
+(defn remove-placements
+    [state]
+    (reduce (fn [state [id armies]]
+        (update-in state
+            [:regions id :armies]
+            #(- % armies)))
+        state
+        (:last-placement state)))
+    
+(defn our-output
+    [state args]
+    (if (and (> (count args) 2) (= "place_armies" (nth args 1)))
+        (-> state
+            (add-placements (clojure.string/split (clojure.string/join " " args) #","))
+            (remove-placements))
+        state))
+
 (defn Output
     [state _ _ _ & args]
-    state)
+    (let [quoted (clojure.string/join " " args)
+          line   (subs quoted 1 (dec (count quoted)))
+          args   (clojure.string/split line #" ")]
+        (our-output state args)))
 
 (defn update_map
     [state & args]
@@ -114,7 +152,8 @@
 
 (defn go_place_armies
     [state timebank]
-    (let [moves (brain/place_armies state)]
+    (let [moves (brain/place_armies state)
+          state (assoc state :last-placement moves)]
         (if (empty? moves)
             (do
                 (bot/send-command "No moves")
@@ -122,8 +161,8 @@
             (do
                 (->> moves
                     (map (fn [[id armies]]
-                            (str (:our_name state) " place_armies " id " " armies)))
-                    (clojure.string/join ",")
+                            (str (:our_name state) " place_armies " id " " armies ",")))
+                    (clojure.string/join "")
                     (bot/send-command))
                 (reduce (fn [state [id armies]]
                     (update-in state
@@ -139,7 +178,7 @@
             (bot/send-command "No moves")
             (->> moves
                 (map (fn [[from_id to_id armies]]
-                        (str (:our_name state) " attack/transfer " from_id " " to_id " " armies)))
-                (clojure.string/join ",")
+                        (str (:our_name state) " attack/transfer " from_id " " to_id " " armies ",")))
+                (clojure.string/join "")
                 (bot/send-command))))
     state)

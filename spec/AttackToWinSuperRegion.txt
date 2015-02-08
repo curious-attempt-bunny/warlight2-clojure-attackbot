@@ -61,10 +61,10 @@ Output from your bot: "player1 place_armies 9 2,player1 place_armies 7 2,player1
 
 go attack/transfer 10000
 
-# Valid: player1 attack/transfer 7 6 3,
-# Valid: player1 attack/transfer 7 6 4,
-# Valid: player1 attack/transfer 7 6 5,
-# Valid: player1 attack/transfer 7 6 6,
-# Valid: player1 attack/transfer 7 6 7,
-# Valid: player1 attack/transfer 7 6 8,
-# Valid: player1 attack/transfer 7 6 9,
+# Valid: [player1 attack/transfer 7 6 3,]
+# Valid: [player1 attack/transfer 7 6 4,]
+# Valid: [player1 attack/transfer 7 6 5,]
+# Valid: [player1 attack/transfer 7 6 6,]
+# Valid: [player1 attack/transfer 7 6 7,]
+# Valid: [player1 attack/transfer 7 6 8,]
+# Valid: [player1 attack/transfer 7 6 9,]

@@ -40,5 +40,5 @@
         (map (fn [region]
             (let [targets    (:neighbours region)
                   proritized (sort-targets state targets)]
-                (bot/log proritized)
+                ; (bot/log proritized)
                 [(:id region) (first proritized) (dec (:armies region))])))))

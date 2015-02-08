@@ -32,4 +32,8 @@
 
     (verify "PlaceArmiesInHighestPriorityRegions")
 
-    (verify "PlaceArmiesInRegionsToAttackFromToWinTheRegion"))
+    (verify "PlaceArmiesInRegionsToAttackFromToWinTheRegion")
+
+    (verify "AttackToWinSuperRegion")
+
+    (verify "AttackToWinSuperRegion2"))
