@@ -36,3 +36,10 @@
                     (not= (:our_name state)
                         (get-in state [:regions neighbour_id :owner])))
                 (:neighbours region))))))
+
+(defn enemy_neighbours
+    [state region]
+    (->> (:neighbours region)
+        (map (fn [id] (get-in state [:regions id])))
+        (filter #(not= (:owner %) (:our_name state)))
+        (map :id)))

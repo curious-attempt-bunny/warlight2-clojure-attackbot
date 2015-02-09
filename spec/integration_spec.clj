@@ -36,4 +36,8 @@
 
     (verify "AttackToWinSuperRegion")
 
-    (verify "AttackToWinSuperRegion2"))
+    (verify "AttackToWinSuperRegion2")
+
+    (verify "PickBestRatioSuperRegions")
+
+    (verify "CorrectArithmeticOnAttacking"))
