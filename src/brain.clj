@@ -24,16 +24,19 @@
     [defending_armies]
     (nth (concat [0 2 3] (iterate (partial + 2) 5)) defending_armies))
 
+(defn super_region_score
+    ([state super_region] (super_region_score state super_region 0))
+    ([state super_region army_delta]
+        (let [reward (:reward super_region)
+              armies (- (state/super_region_armies state super_region) army_delta)
+              score  (if (zero? armies) reward (/ reward armies))]
+            score)))
+
 (defn pick_starting_region
     [state ids]
     (->> ids
         (sort-by
-            (fn [id]
-                (let [reward (:reward (state/super_region state id))
-                      armies (- (state/super_region_armies state (state/super_region state id)) 2)
-                      score  (/ reward armies)]
-                    ; (bot/log [id reward armies score])
-                    score))
+            (fn [id] (super_region_score state (state/super_region state id) 2))
             >)
         ; ((fn [ids] (bot/log ids)))
         first))
