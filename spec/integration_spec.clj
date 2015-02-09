@@ -40,4 +40,6 @@
 
     (verify "PickBestRatioSuperRegions")
 
-    (verify "CorrectArithmeticOnAttacking"))
+    (verify "CorrectArithmeticOnAttacking")
+
+    (verify "CorrectArithmeticOnAttacking2"))
