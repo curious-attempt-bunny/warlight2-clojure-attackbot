@@ -38,14 +38,30 @@
         (sort-by
             (fn [id] (super_region_score state (state/super_region state id) 2))
             >)
-        ; ((fn [ids] (bot/log ids)))
         first))
             
 (defn place_armies
     [state]
     [[(->> (state/border_regions state)
+        (sort-by
+            (fn [region]
+                (let [region_id          (:id region)
+                      super_region       (state/super_region state region_id)
+                      super_region_score (super_region_score state super_region)
+                      super_region_owner (state/super_region_owner state super_region)
+                      region_borders_foe (state/region_borders_player state region (:their_name state))
+                      score              (+
+                                            (if (not= super_region_owner (:our_name state))
+                                                (* 100 super_region_score)
+                                                0)
+                                            (if region_borders_foe
+                                                10
+                                                0))]
+                        score))
+
+            >)
         (map :id)
-        (rand-nth)) (:starting_armies state)]])
+        (first)) (:starting_armies state)]])
 
 (defn sort-targets
     [state targets]

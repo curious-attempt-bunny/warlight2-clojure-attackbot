@@ -43,3 +43,10 @@
         (map (fn [id] (get-in state [:regions id])))
         (filter #(not= (:owner %) (:our_name state)))
         (map :id)))
+
+(defn region_borders_player
+    [state region player]
+    (->> (:neighbours region)
+        (map (fn [id] (get-in state [:regions id])))
+        (filter #(= (:owner %) player))
+        (some true?)))
