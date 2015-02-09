@@ -42,4 +42,6 @@
 
     (verify "CorrectArithmeticOnAttacking")
 
-    (verify "CorrectArithmeticOnAttacking2"))
+    (verify "CorrectArithmeticOnAttacking2")
+    
+    (verify "CorrectArithmeticOnAttacking3"))
