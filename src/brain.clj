@@ -67,6 +67,7 @@
               proritized (sort-targets state targets)]
             (next_attacks state region proritized)))
     ([state region proritized]
+        ; (bot/log region)
         (if (empty? proritized)
             [state []]
             (let [target           (first proritized)
@@ -77,8 +78,9 @@
                 ; (bot/log ["From " (:id region) " (" armies ") considering " target " needing " attack_with])
                 (if (>= armies attacking_armies)
                     (let [next-state    (update-in state [:regions (:id region) :armies] #(- % attack_with))
-                          [state moves] (next_attacks next-state region (rest proritized))]
-                        [state (cons [(:id region) target attack_with] moves)])
+                          [state2 moves] (next_attacks next-state (get-in next-state [:regions (:id region)]) (rest proritized))]
+                        ; (bot/log (get-in next-state [:regions (:id region)]))
+                        [state2 (cons [(:id region) target attack_with] moves)])
                     (next_attacks state region (rest proritized)))))))
 
 (defn attack
