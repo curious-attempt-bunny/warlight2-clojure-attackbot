@@ -1,5 +1,10 @@
 (ns brain)
 
+; see rollouts/attack_map
+(defn armies_to_kill
+    [defending_armies]
+    (nth (concat [0 2 3] (iterate (partial + 2) 5)) defending_armies))
+
 (defn pick_starting_region
     [state ids]
     (->> ids
