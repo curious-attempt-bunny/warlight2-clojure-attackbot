@@ -93,7 +93,9 @@
                   defending_armies (get-in state [:regions target :armies])
                   attacking_armies (armies_to_kill defending_armies)
                   armies           (:armies region)
-                  attack_with      (if (> (count proritized) 1) attacking_armies (dec armies))]
+                  attack_with      (if (> (count proritized) 1)
+                                        attacking_armies
+                                        (Math/max (dec armies) attacking_armies))]
                 ; (bot/log ["From " (:id region) " (" armies ") considering " target " needing " attack_with])
                 (if (> armies attacking_armies)
                     (let [next-state    (update-in state [:regions (:id region) :armies] #(- % attack_with))
