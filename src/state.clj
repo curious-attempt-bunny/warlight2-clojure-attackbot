@@ -50,3 +50,10 @@
         (map (fn [id] (get-in state [:regions id])))
         (filter #(= (:owner %) player))
         (some true?)))
+
+(defn region_borders_player_count
+    [state region player]
+    (->> (:neighbours region)
+        (map (fn [id] (get-in state [:regions id])))
+        (filter #(= (:owner %) player))
+        (count)))

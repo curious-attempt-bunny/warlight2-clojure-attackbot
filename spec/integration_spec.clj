@@ -44,4 +44,8 @@
 
     (verify "CorrectArithmeticOnAttacking2")
 
-    (verify "CorrectArithmeticOnAttacking3"))
+    (verify "CorrectArithmeticOnAttacking3")
+
+    (verify "AttackWithFullForceIfThereIsNoRisk")
+
+    (verify "AttackManyTargets"))
