@@ -89,13 +89,15 @@
         ; (bot/log region)
         (if (empty? proritized)
             [state []]
-            (let [target             (first proritized)
-                  defending_armies   (get-in state [:regions target :armies])
-                  attacking_armies   (armies_to_kill defending_armies)
-                  armies             (:armies region)
-                  enemy_border_count (state/region_borders_player_count state region (:their_name state))
-                  attack_with        (if (and (<= enemy_border_count 1)
-                                              (< (- armies attacking_armies) 3)) ; attack with all if no risk and not enough to attack further with
+            (let [target               (first proritized)
+                  defending_armies     (get-in state [:regions target :armies])
+                  attacking_armies     (armies_to_kill defending_armies)
+                  armies               (:armies region)
+                  enemy_border_count   (state/region_borders_player_count state region (:their_name state))
+                  neutral_border_count (state/region_borders_player_count state region "neutral")
+                  attack_with          (if (and (<= enemy_border_count 1)
+                                                (zero? neutral_border_count)
+                                                (< (- armies attacking_armies) 3)) ; attack with all if no risk and not enough to attack further with
                                         (Math/max (dec armies) attacking_armies)
                                         attacking_armies)]
                 ; (bot/log ["From " (:id region) " (" armies ") considering " target " needing " attack_with])

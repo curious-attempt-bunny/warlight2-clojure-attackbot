@@ -62,5 +62,5 @@ go attack/transfer 9401
 
 Output from your bot: "player1 attack/transfer 15 9 3,player1 attack/transfer 6 4 3,player1 attack/transfer 6 3 3,"
 
-## Attack with full force if there is no risk of attack from the enemy
-# Valid: [player1 attack/transfer 15 9 4,]
+## Attack with full force if there is no risk of attack from the enemy (well, maybe not full force)
+# Valid: [player1 attack/transfer 15 9 ]

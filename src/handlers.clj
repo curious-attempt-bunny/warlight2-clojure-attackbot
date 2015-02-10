@@ -42,6 +42,7 @@
                         :super_region_id (Integer/parseInt super_region_id)
                         :armies 2
                         :neighbours []
+                        :owner "neutral"
                         }))
             {}
             (partition 2 args))))
