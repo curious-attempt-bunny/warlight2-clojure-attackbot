@@ -1,4 +1,5 @@
 (ns brain)
+(require 'clojure.set)
 
 ; see rollouts/attack_map
 ; 2x1 -- (-1) --> 1
@@ -103,7 +104,7 @@
 
 (defn transfers
     ([state]
-        (transfers state (state/border_regions state) #{}))
+        (transfers state (state/border_regions state) (set (map :id (state/border_regions state)))))
     ([state regions considered]
         (if (empty? regions)
             []
@@ -128,5 +129,4 @@
                       [state new_attacks] (next_attacks state already_attacked region)]
                     [state (concat attacks new_attacks)]))
             [state []])
-        (last)
-        (concat (transfers state))))
+        ((fn [[state moves]] (concat (transfers state) moves)))))
