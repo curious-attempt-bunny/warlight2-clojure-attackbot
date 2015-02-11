@@ -123,4 +123,4 @@ go place_armies 10000
 Output from your bot: "player1 place_armies 1 9,"
 
 ## Round 6: should place armies at region 3 to attack last remaining territory at region 2
-# Valid: [player1 place_armies 1 ]
+# Valid: [player1 place_armies 3 ]

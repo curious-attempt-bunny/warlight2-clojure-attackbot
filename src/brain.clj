@@ -51,8 +51,10 @@
                       filtered      (filter #(not= (:our_name state) (state/super_region_owner state %)) super_regions)
                       scores        (map (partial super_region_score state) filtered)
                       best_score    (reduce max scores)]
+                    ; (bot/log [(:id region) best_score])
                     best_score))
             >)
+        ; (bot/log)
         (map :id)
         (first)) (:starting_armies state)]])
 
