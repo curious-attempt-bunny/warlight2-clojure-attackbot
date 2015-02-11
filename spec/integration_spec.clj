@@ -34,3 +34,4 @@
       (filter identity)
       (map last)
       (map verify)))
+    ; (verify "AttackManyTargets"))

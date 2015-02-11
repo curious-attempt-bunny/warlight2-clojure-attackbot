@@ -81,12 +81,13 @@
         targets))
 
 (defn next_attacks
-    ([state region]
+    ([state already_attacked region]
         (let [targets    (state/enemy_neighbours state region)
-              proritized (sort-targets state targets)]
-            (next_attacks state region proritized)))
-    ([state region proritized]
-        ; (bot/log region)
+              filtered   (filter #(not (contains? already_attacked %)) targets)
+              proritized (sort-targets state filtered)]
+            (next_attacks state already_attacked region proritized)))
+    ([state already_attacked region proritized]
+        ; (bot/log [region proritized])
         (if (empty? proritized)
             [state []]
             (let [target               (first proritized)
@@ -102,11 +103,28 @@
                                         attacking_armies)]
                 ; (bot/log ["From " (:id region) " (" armies ") considering " target " needing " attack_with])
                 (if (> armies attacking_armies)
-                    (let [next-state    (update-in state [:regions (:id region) :armies] #(- % attack_with))
-                          [state2 moves] (next_attacks next-state (get-in next-state [:regions (:id region)]) (rest proritized))]
+                    (let [next-state     (update-in state [:regions (:id region) :armies] #(- % attack_with))
+                          [state2 moves] (next_attacks next-state already_attacked (get-in next-state [:regions (:id region)]) (rest proritized))]
                         ; (bot/log (get-in next-state [:regions (:id region)]))
                         [state2 (cons [(:id region) target attack_with] moves)])
-                    (next_attacks state region (rest proritized)))))))
+                    (next_attacks state already_attacked region (rest proritized)))))))
+
+(defn transfers
+    ([state]
+        (transfers state (state/border_regions state) #{}))
+    ([state regions considered]
+        (if (empty? regions)
+            []
+            (let [region          (first regions)
+                  neighbours      (:neighbours region)
+                  unvisited       (filter #(not (contains? considered %)) neighbours)
+                  resolved        (map #(get-in state [:regions %]) unvisited)
+                  ours            (filter #(= (:our_name state) (:owner %)) resolved)
+                  next-regions    (concat (rest regions) ours)
+                  next-considered (clojure.set/union considered (set (map :id ours)))
+                  with_armies     (filter #(> (:armies %) 1) ours)
+                  moves           (map (fn [source] [(:id source) (:id region) (dec (:armies source))]) with_armies)]
+                (concat moves (transfers state next-regions next-considered))))))
 
 (defn attack
     [state]
@@ -114,17 +132,9 @@
         (filter #(> (:armies %) 1))
         (reduce
             (fn [[state attacks] region]
-                (let [[state new_attacks] (next_attacks state region)]
+                (let [already_attacked (set (map second attacks))
+                      [state new_attacks] (next_attacks state already_attacked region)]
                     [state (concat attacks new_attacks)]))
             [state []])
-        (last)))
-
-; (defn attack
-;     [state]
-;     (->> (state/our_regions state)
-;         (filter #(> (:armies %) 1))
-;         (map (fn [region]
-;             (let [targets    (:neighbours region)
-;                   proritized (sort-targets state targets)]
-;                 ; (bot/log proritized)
-;                 [(:id region) (first proritized) (dec (:armies region))])))))
+        (last)
+        (concat (transfers state))))
