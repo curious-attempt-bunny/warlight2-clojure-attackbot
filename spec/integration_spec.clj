@@ -28,10 +28,10 @@
                     (should (some (partial satisfy actual) expected)))))))
 
 (describe "Sample game"
-    (->> (file-seq (clojure.java.io/file "spec"))
-      (map #(.getName %))
-      (map (partial re-find #"^(.*).txt$"))
-      (filter identity)
-      (map last)
-      (map verify)))
-    ; (verify "AttackManyTargets"))
+    ; (->> (file-seq (clojure.java.io/file "spec"))
+    ;   (map #(.getName %))
+    ;   (map (partial re-find #"^(.*).txt$"))
+    ;   (filter identity)
+    ;   (map last)
+    ;   (map verify)))
+    (verify "PlaceArmiesInRegionsToAttackFromToWinTheRegion2"))
