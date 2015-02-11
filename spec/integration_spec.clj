@@ -28,24 +28,9 @@
                     (should (some (partial satisfy actual) expected)))))))
 
 (describe "Sample game"
-    (verify "PickSmall")
-
-    (verify "PlaceArmiesInHighestPriorityRegions")
-
-    (verify "PlaceArmiesInRegionsToAttackFromToWinTheRegion")
-
-    (verify "AttackToWinSuperRegion")
-
-    (verify "AttackToWinSuperRegion2")
-
-    (verify "PickBestRatioSuperRegions")
-
-    (verify "CorrectArithmeticOnAttacking")
-
-    (verify "CorrectArithmeticOnAttacking2")
-
-    (verify "CorrectArithmeticOnAttacking3")
-
-    (verify "AttackWithFullForceIfThereIsNoRisk")
-
-    (verify "AttackManyTargets"))
+    (->> (file-seq (clojure.java.io/file "spec"))
+      (map #(.getName %))
+      (map (partial re-find #"^(.*).txt$"))
+      (filter identity)
+      (map last)
+      (map verify)))
