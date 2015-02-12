@@ -153,6 +153,7 @@
 
 (defn go_place_armies
     [state timebank]
+    ; (bot/log
     (let [moves (brain/place_armies state)
           state (assoc state :last-placement moves)]
         (if (empty? moves)
@@ -171,6 +172,7 @@
                         (partial + armies)))
                     state
                     moves)))))
+    ; )
 
 (defn go_attack_transfer
     [state timebank]

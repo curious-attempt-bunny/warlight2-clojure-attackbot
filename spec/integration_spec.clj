@@ -33,5 +33,6 @@
       (map (partial re-find #"^(.*).txt$"))
       (filter identity)
       (map last)
-      (map verify)))
-    ; (verify "PlaceArmiesInRegionsToAttackFromToWinTheRegion2"))
+      (map verify))
+    ; (verify "AttackWithFullForceIfThereIsNoRisk3")
+)

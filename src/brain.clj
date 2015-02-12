@@ -93,10 +93,13 @@
                   neutral_border_count (state/region_borders_player_count state region "neutral")
                   attack_with          (if (and (<= enemy_border_count 1)
                                                 (zero? neutral_border_count)
-                                                (< (- armies attacking_armies) 3)) ; attack with all if no risk and not enough to attack further with
+                                                (>= (- armies attacking_armies) 3)) ; attack with all if no risk and not enough to attack further with
                                         (Math/max (dec armies) attacking_armies)
                                         attacking_armies)]
-                ; (bot/log ["From " (:id region) " (" armies ") considering " target " needing " attack_with])
+                ; (bot/log [(:id region) :-> target :have armies :need attack_with])
+                ; (bot/log ["(<= enemy_border_count 1)" (<= enemy_border_count 1)])
+                ; (bot/log ["(zero? neutral_border_count)" (zero? neutral_border_count)])
+                ; (bot/log ["(zero? neutral_border_count)" (zero? neutral_border_count)])
                 (if (> armies attacking_armies)
                     (let [next-state     (update-in state [:regions (:id region) :armies] #(- % attack_with))
                           [state2 moves] (next_attacks next-state already_attacked (get-in next-state [:regions (:id region)]) (rest proritized))]
