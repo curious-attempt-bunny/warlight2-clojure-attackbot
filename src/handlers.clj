@@ -151,10 +151,19 @@
     [state number]
     (assoc state :round (Integer/parseInt number)))
 
+(defn simplify_moves
+    [moves]
+    (->> moves
+        (filter (fn [[id armies]] (> armies 0)))
+        (reduce (fn [totals [id armies]]
+            (assoc totals id (+ (get totals id 0) armies)))
+            {})
+        (vec)))
+
 (defn go_place_armies
     [state timebank]
     ; (bot/log
-    (let [moves (brain/place_armies state)
+    (let [moves (simplify_moves (brain/place_armies state))
           state (assoc state :last-placement moves)]
         (if (empty? moves)
             (do

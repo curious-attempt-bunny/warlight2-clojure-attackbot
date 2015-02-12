@@ -41,9 +41,9 @@
             >)
         first))
 
-(defn place_armies
+(defn placement_priorities
     [state]
-    [[(->> (state/border_regions state)
+    (->> (state/border_regions state)
         (sort-by
             (fn [region]
                 (let [neighbours    (state/enemy_neighbours state region)
@@ -53,10 +53,41 @@
                       best_score    (reduce max scores)]
                     ; (bot/log [(:id region) best_score])
                     best_score))
-            >)
-        ; (bot/log)
-        (map :id)
-        (first)) (:starting_armies state)]])
+            >)))
+
+(defn bordering_neutral
+    [state regions]
+    (filter (fn [region]
+        (let [neighbours (state/enemy_neighbours state region)]
+            (some #(and
+                (= "neutral" (:owner %))
+                (= 2 (:armies %))) neighbours)))
+        regions))
+
+(defn place_armies
+    ([state]
+        (if (zero? (:starting_armies state))
+            []
+            (let [proritized    (placement_priorities state)
+                  border_neutral (bordering_neutral state proritized)
+                  [state moves] (place_armies state border_neutral [])
+                  main_region   (first proritized)]
+                    (conj moves [(:id main_region) (:starting_armies state)] ))))
+    ([state proritized moves]
+        (if (empty? proritized)
+            [state moves]
+            (let [region           (first proritized)
+                  armies           (:armies region)
+                  remaining_armies (:starting_armies state)
+                  add              (min remaining_armies (- 4 (mod armies 4)))
+                  move             [(:id region) add]
+                  next-state       (-> state
+                                    (update-in [:regions (:id region) :armies] (partial + add))
+                                    (update-in [:starting_armies] #(- % add)))]
+                (if (and (= armies 3) (= add 1))
+                    (place_armies next-state (rest proritized) (conj moves move))
+                    (place_armies next-state (rest proritized) moves))))))
+
 
 (defn sort-targets
     [state targets]
@@ -91,8 +122,7 @@
                   armies               (:armies region)
                   enemy_border_count   (state/region_borders_player_count state region (:their_name state))
                   neutral_border_count (state/region_borders_player_count state region "neutral")
-                  attack_with          (if (and (<= enemy_border_count 1)
-                                                (zero? neutral_border_count)
+                  attack_with          (if (and (<= (+ neutral_border_count enemy_border_count) 1)
                                                 (>= (- armies attacking_armies) 3)) ; attack with all if no risk and not enough to attack further with
                                         (Math/max (dec armies) attacking_armies)
                                         attacking_armies)]
