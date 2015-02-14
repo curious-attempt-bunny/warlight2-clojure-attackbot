@@ -131,21 +131,39 @@
 (defn update_map
     [state & args]
     (reduce
-        (fn [state [region_id owner armies]]
-            (-> state
-                (assoc-in
-                    [:regions (Integer/parseInt region_id) :owner]
-                    owner)
-                (assoc-in
-                    [:regions (Integer/parseInt region_id) :armies]
-                    (Integer/parseInt armies))))
+        (fn [state [_region_id owner _armies]]
+            (let [region_id (Integer/parseInt _region_id)
+                  armies    (Integer/parseInt _armies)
+                  addition  (if (not= owner (:their_name state))
+                                0
+                                (get-in state [:regions region_id :last-placement] 0))]
+                (-> state
+                    (assoc-in
+                        [:regions region_id :owner]
+                        owner)
+                    (assoc-in
+                        [:regions region_id :armies]
+                        (+ armies addition)))))
         state
         (partition 3 args)))
 
-; left as an exercise for the reader
 (defn opponent_moves
     [state & args]
-    state)
+    (reduce
+        (fn [state [_ type region_id armies]]
+            (if (not= type "place_armies")
+                state
+                (update-in state
+                    [:regions (Integer/parseInt region_id) :last-placement]
+                    (partial + (Integer/parseInt armies)))))
+        (reduce
+            (fn [state region_id]
+                (assoc-in state
+                    [:regions region_id :last-placement]
+                    0))
+            state
+            (keys (:regions state)))
+        (partition 4 args)))
 
 (defn Round
     [state number]
