@@ -49,9 +49,13 @@
                 (let [neighbours    (state/enemy_neighbours state region)
                       super_regions (set (map (partial state/super_region state) neighbours))
                       filtered      (filter #(not= (:our_name state) (state/super_region_owner state %)) super_regions)
-                      scores        (map (partial super_region_score state) filtered)
-                      best_score    (reduce max scores)]
-                    ; (bot/log [(:id region) best_score])
+                      best_super    (last (sort-by (fn [super_region] (super_region_score state super_region)) filtered))
+                      neighbours_in_super (filter (fn [region_id] (= (:id best_super) (get-in state [:regions region_id :super_region_id]))) neighbours)
+                      best_score    (+
+                                      (* 100 (super_region_score state best_super)
+                                      (* 10 (count neighbours_in_super)))
+                                      (count neighbours))]
+                    ; (bot/log [(:id region) best_score neighbours_in_super])
                     best_score))
             >)))
 
