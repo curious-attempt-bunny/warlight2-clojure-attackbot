@@ -31,6 +31,8 @@
         (let [reward (:reward super_region)
               armies (- (state/super_region_armies state super_region) army_delta)
               score  (if (zero? armies) reward (/ reward armies))]
+            ; (bot/log (:super_regions state))
+            ; (bot/log (str "super region " super_region " scores " score))
             score)))
 
 (defn pick_starting_region
@@ -52,8 +54,8 @@
                       best_super    (last (sort-by (fn [super_region] (super_region_score state super_region)) filtered))
                       neighbours_in_super (filter (fn [region_id] (= (:id best_super) (get-in state [:regions region_id :super_region_id]))) neighbours)
                       best_score    (+
-                                      (* 100 (super_region_score state best_super)
-                                      (* 10 (count neighbours_in_super)))
+                                      (* 10000 (super_region_score state best_super))
+                                      (* 10 (count neighbours_in_super))
                                       (count neighbours))]
                     ; (bot/log [(:id region) best_score neighbours_in_super])
                     best_score))
