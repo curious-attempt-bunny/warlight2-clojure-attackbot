@@ -132,7 +132,8 @@
                 ; (bot/log ["(zero? neutral_border_count)" (zero? neutral_border_count)])
                 (if (> armies attacking_armies)
                     (let [next-state     (update-in state [:regions (:id region) :armies] #(- % attack_with))
-                          [state2 moves] (next_attacks next-state already_attacked (get-in next-state [:regions (:id region)]) (rest proritized))]
+                          next-state2    (assoc-in next-state [:regions target :owner] (:our_name state)) ; assume that we capture
+                          [state2 moves] (next_attacks next-state2 already_attacked (get-in next-state2 [:regions (:id region)]) (rest proritized))]
                         ; (bot/log (get-in next-state [:regions (:id region)]))
                         [state2 (cons [(:id region) target attack_with] moves)])
                     (next_attacks state already_attacked region (rest proritized)))))))
