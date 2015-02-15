@@ -144,7 +144,15 @@
                     (assoc-in
                         [:regions region_id :armies]
                         (+ armies addition)))))
-        state
+        (reduce
+            (fn [state region_id]
+                (if (= (:our_name state) (get-in state [:regions region_id :owner]))
+                    (assoc-in state
+                        [:regions region_id :owner]
+                        (:their_name state))
+                    state))
+            state
+            (keys (:regions state)))
         (partition 3 args)))
 
 (defn opponent_moves
