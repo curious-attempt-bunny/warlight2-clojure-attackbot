@@ -65,5 +65,8 @@
 
 (defn attack
     [state]
-    (ranked_targets state (our_regions state)))
+    (filter
+        (fn [{:keys [from armies]}]
+            (> (:armies from) armies))
+        (ranked_targets state (our_regions state))))
         
