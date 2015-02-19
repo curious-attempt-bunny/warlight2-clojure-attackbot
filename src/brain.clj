@@ -58,15 +58,47 @@
     (let [{:keys [from]} (first (ranked_targets state (our_regions state)))]
         (:id from)))
 
+(defn place_required_armies
+    [[state placements] {:keys [from to armies]}]
+    (cond
+        (zero? (:starting_armies state))
+            [state placements]
+        :else
+            (let [from2         (get-in state [:regions (:id from)]) ; may have been updated
+                  needed-armies (- armies (dec (:armies from2)))]
+                (cond
+                    (> (:armies from) armies)
+                        (let [next-state (update-in state [:regions (:id from) :armies] #(- % armies))]
+                            [next-state placements])
+                    (> (:starting_armies state) needed-armies)
+                        (let [next-state    (assoc-in state [:regions (:id from) :armies] 1)
+                              next-state2   (update-in state [:starting_armies] #(- % needed-armies))
+                              placement     {:region from :armies needed-armies}]
+                            (bot/log (str "Placing " needed-armies " armies on " (:id from) " so that we can attack " (:id to) " " armies "v" (:armies to)))
+                            [next-state2 (conj placements placement)])
+                    :else
+                        [state placements]))))
+
 (defn place_armies
     [state]
-    (let [{:keys [from]} (first (ranked_targets state (our_regions state)))]
-        [[(:id from) (:starting_armies state)]]))
+    (let [targets            (ranked_targets state (our_regions state))
+          [state placements] (reduce place_required_armies [state []] targets)
+          final_placement    {:region (:from (first targets)) :armies (:starting_armies state)}]
+        (conj placements final_placement)))
+
+(defn attack_when_appropriate
+    [[state attacks] {:keys [from to armies] :as attack}]
+    (let [from2 (get-in state [:regions (:id from)])] ; may have been updated
+        ; (bot/log [(:id from) (:id to) (:armies from2) (:armies to)])
+        (cond
+            (> (:armies from2) armies)
+                (let [next-state (update-in state [:regions (:id from) :armies] #(- % armies))]
+                    ; (bot/log [(:id from) (:id to)])
+                    [next-state (conj attacks attack)])
+            :else
+                [state attacks])))
 
 (defn attack
     [state]
-    (filter
-        (fn [{:keys [from armies]}]
-            (> (:armies from) armies))
-        (ranked_targets state (our_regions state))))
+    (last (reduce attack_when_appropriate [state []] (ranked_targets state (our_regions state)))))
         

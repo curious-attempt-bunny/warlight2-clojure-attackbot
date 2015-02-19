@@ -106,9 +106,9 @@
 
 (defn remove-placements
     [state]
-    (reduce (fn [state [id armies]]
+    (reduce (fn [state {:keys [region armies]}]
         (update-in state
-            [:regions id :armies]
+            [:regions (:id region) :armies]
             #(- % armies)))
         state
         (:last-placement state)))
@@ -185,19 +185,10 @@
     [state number]
     (assoc state :round (Integer/parseInt number)))
 
-(defn simplify_moves
-    [moves]
-    (->> moves
-        (filter (fn [[id armies]] (> armies 0)))
-        (reduce (fn [totals [id armies]]
-            (assoc totals id (+ (get totals id 0) armies)))
-            {})
-        (vec)))
-
 (defn go_place_armies
     [state timebank]
     ; (bot/log
-    (let [moves (simplify_moves (brain/place_armies state))
+    (let [moves (brain/place_armies state)
           state (assoc state :last-placement moves)]
         (if (empty? moves)
             (do
@@ -205,13 +196,13 @@
                 state)
             (do
                 (->> moves
-                    (map (fn [[id armies]]
-                            (str (:our_name state) " place_armies " id " " armies ",")))
+                    (map (fn [{:keys [region armies]}]
+                            (str (:our_name state) " place_armies " (:id region) " " armies ",")))
                     (clojure.string/join "")
                     (bot/send-command))
-                (reduce (fn [state [id armies]]
+                (reduce (fn [state {:keys [region armies]}]
                     (update-in state
-                        [:regions id :armies]
+                        [:regions (:id region) :armies]
                         (partial + armies)))
                     state
                     moves)))))
