@@ -25,14 +25,45 @@
     [defending_armies]
     (nth (concat [0 2 3] (iterate (partial + 2) 5)) defending_armies))
 
+(defn regions
+    [state]
+    (vals (:regions state)))
+
+(defn ours?
+    [region]
+    (= :us (:owner region)))
+
+(defn our_regions
+    [state]
+    (filter ours? (regions state)))
+
+(defn neighbours
+    [state region]
+    (map (fn [region_id] (get-in state [:regions region_id])) (:neighbours region)))
+
+(defn targets
+    [state from_regions]
+    (mapcat
+        (fn [region]
+            (map (fn [neighbour] {:from region :to neighbour :armies (armies_to_kill (:armies neighbour))})
+                (remove ours? (neighbours state region))))
+        from_regions))
+
+(defn ranked_targets
+    [state from_regions]
+    (targets state from_regions))
+
 (defn pick_starting_region
     [state ids]
-    (first ids))
+    (let [{:keys [from]} (first (ranked_targets state (our_regions state)))]
+        (:id from)))
 
 (defn place_armies
     [state]
-    [])
+    (let [{:keys [from]} (first (ranked_targets state (our_regions state)))]
+        [[(:id from) (:starting_armies state)]]))
 
 (defn attack
     [state]
-    [])
+    (ranked_targets state (our_regions state)))
+        

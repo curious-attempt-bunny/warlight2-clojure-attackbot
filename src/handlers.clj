@@ -42,7 +42,7 @@
                         :super_region_id (Integer/parseInt super_region_id)
                         :armies 2
                         :neighbours []
-                        :owner "neutral"
+                        :owner :neutral
                         }))
             {}
             (partition 2 args))))
@@ -128,13 +128,21 @@
           args   (clojure.string/split line #" ")]
         (our-output state args)))
 
+(defn- owner_symbol
+    [state owner]
+    (cond
+        (= owner (get state :our_name)) :us
+        (= owner (get state :their_name)) :them
+        :else :neutral))
+
 (defn update_map
     [state & args]
     (reduce
-        (fn [state [_region_id owner _armies]]
+        (fn [state [_region_id _owner _armies]]
             (let [region_id (Integer/parseInt _region_id)
                   armies    (Integer/parseInt _armies)
-                  addition  (if (not= owner (:their_name state))
+                  owner     (owner_symbol state _owner)
+                  addition  (if (not= owner :them)
                                 0
                                 (get-in state [:regions region_id :last-placement] 0))]
                 (-> state
@@ -149,7 +157,7 @@
                 (if (= (:our_name state) (get-in state [:regions region_id :owner]))
                     (assoc-in state
                         [:regions region_id :owner]
-                        (:their_name state))
+                        :them)
                     state))
             state
             (keys (:regions state)))
@@ -215,8 +223,8 @@
         (if (empty? moves)
             (bot/send-command "No moves")
             (->> moves
-                (map (fn [[from_id to_id armies]]
-                        (str (:our_name state) " attack/transfer " from_id " " to_id " " armies ",")))
+                (map (fn [{:keys [from to armies]}]
+                        (str (:our_name state) " attack/transfer " (:id from) " " (:id to) " " armies ",")))
                 (clojure.string/join "")
                 (bot/send-command))))
     state)
