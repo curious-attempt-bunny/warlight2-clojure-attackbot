@@ -1,4 +1,3 @@
-# Usage
+# Create upload zip
 
-    lein repl
-    (load "bot") (bot/-main "sample_game.txt")
+    ./package.sh
