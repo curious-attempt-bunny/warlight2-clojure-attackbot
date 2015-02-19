@@ -1,7 +1,7 @@
 (ns integration-spec
   (:require [speclj.core :refer :all]
+            [speclj.run.standard]
             [bot :refer :all]
-            [state]
             [brain]
             [handlers]))
 
@@ -28,11 +28,11 @@
                     (should (some (partial satisfy actual) expected)))))))
 
 (describe "Sample game"
-    ; (->> (file-seq (clojure.java.io/file "spec"))
-    ;   (map #(.getName %))
-    ;   (map (partial re-find #"^(.*).txt$"))
-    ;   (filter identity)
-    ;   (map last)
-    ;   (map verify))
-    (verify "PlaceArmiesUsefully")
+    (->> (file-seq (clojure.java.io/file "spec"))
+      (map #(.getName %))
+      (map (partial re-find #"^(.*).txt$"))
+      (filter identity)
+      (map last)
+      (map verify))
+    ; (verify "...")
 )

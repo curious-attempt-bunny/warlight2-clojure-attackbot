@@ -25,4 +25,14 @@
     [defending_armies]
     (nth (concat [0 2 3] (iterate (partial + 2) 5)) defending_armies))
 
-; TODO
+(defn pick_starting_region
+    [state ids]
+    (first ids))
+
+(defn place_armies
+    [state]
+    [])
+
+(defn attack
+    [state]
+    [])
