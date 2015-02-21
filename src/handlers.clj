@@ -165,21 +165,23 @@
 
 (defn opponent_moves
     [state & args]
-    (reduce
-        (fn [state [_ type region_id armies]]
-            (if (not= type "place_armies")
-                state
-                (update-in state
-                    [:regions (Integer/parseInt region_id) :last-placement]
-                    (partial + (Integer/parseInt armies)))))
+    (let [next-state (update-in state [:round] inc)]
+        (bot/log (str "Round: " (get-in next-state [:round])))
         (reduce
-            (fn [state region_id]
-                (assoc-in state
-                    [:regions region_id :last-placement]
-                    0))
-            state
-            (keys (:regions state)))
-        (partition 4 args)))
+            (fn [state [_ type region_id armies]]
+                (if (not= type "place_armies")
+                    state
+                    (update-in state
+                        [:regions (Integer/parseInt region_id) :last-placement]
+                        (partial + (Integer/parseInt armies)))))
+            (reduce
+                (fn [state region_id]
+                    (assoc-in state
+                        [:regions region_id :last-placement]
+                        0))
+                next-state
+                (keys (:regions state)))
+            (partition 4 args))))
 
 (defn Round
     [state number]

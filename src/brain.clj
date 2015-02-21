@@ -88,14 +88,13 @@
     [state {:keys [to]}]
     ; (bot/log to)
     (let [neighbours    (enemy_neighbours state to)
-          super_regions (super_regions state neighbours)
-          best_super    (last (sort-by (fn [super_region] (super_region_score state super_region)) super_regions))
+          best_super    (super_region state to)
           neighbours_in_super (filter (fn [region] (= (:id best_super) (get-in state [:regions (:id region) :super_region_id]))) neighbours)
           best_score    (+
-                          (* 10000 (if (nil? best_super) 0 (super_region_score state best_super)))
+                          (* 10000 (super_region_score state best_super))
                           (* 10 (count neighbours_in_super))
                           (count neighbours))]
-                    ; (bot/log [(:id to) best_score best_super neighbours_in_super])
+                    ; (bot/log (str "Region " (:id to) " scores " best_score " as a target. The super region is " (pr-str best_super) ". Neighbours in super " (pr-str (map :id neighbours_in_super)) ". Neighbours " (pr-str (map :id neighbours))))
                     best_score))
 
 (defn ranked_targets

@@ -28,4 +28,4 @@
 
 (defn -main
     [] 
-    (reduce parse {} (line-seq (java.io.BufferedReader. *in*))))
+    (reduce parse {:round 0} (line-seq (java.io.BufferedReader. *in*))))
