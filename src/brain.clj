@@ -120,7 +120,7 @@
                 (cond
                     (<= needed-armies 0)
                         (let [next-state (update-in state [:regions (:id from2) :armies] #(- % armies))]
-                            (bot/log "  enough to attack so removed the armies needed. Now we have " (get-in state [:regions (:id from2) :armies]))
+                            (bot/log (str "  enough to attack so removed the armies needed. Now we have " (get-in state [:regions (:id from2) :armies])))
                             [next-state placements])
                     (>= (:starting_armies state) needed-armies)
                         (let [next-state    (assoc-in state [:regions (:id from2) :armies] 1)
