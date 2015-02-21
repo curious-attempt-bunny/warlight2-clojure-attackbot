@@ -26,8 +26,11 @@
     (nth (concat [0 2 3] (iterate (partial + 2) 5)) defending_armies))
 
 (defn regions
-    [state]
-    (vals (:regions state)))
+    ([state]
+        (vals (:regions state)))
+    ([state ids]
+        (let [region_ids (set ids)]
+            (->> (regions state) (filter #(contains? region_ids (:id %)))))))
 
 (defn ours?
     [region]
@@ -55,7 +58,7 @@
 
 (defn pick_starting_region
     [state ids]
-    (let [{:keys [from]} (first (ranked_targets state (our_regions state)))]
+    (let [{:keys [from]} (first (ranked_targets state (regions state ids)))]
         (:id from)))
 
 (defn place_required_armies
@@ -74,7 +77,7 @@
                         (let [next-state    (assoc-in state [:regions (:id from) :armies] 1)
                               next-state2   (update-in state [:starting_armies] #(- % needed-armies))
                               placement     {:region from :armies needed-armies}]
-                            (bot/log (str "Placing " needed-armies " armies on " (:id from) " so that we can attack " (:id to) " " armies "v" (:armies to)))
+                            ; (bot/log (str "Placing " needed-armies " armies on " (:id from) " so that we can attack " (:id to) " " armies "v" (:armies to)))
                             [next-state2 (conj placements placement)])
                     :else
                         [state placements]))))
