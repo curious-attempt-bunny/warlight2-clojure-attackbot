@@ -69,15 +69,17 @@
         :else
             (let [from2         (get-in state [:regions (:id from)]) ; may have been updated
                   needed-armies (- armies (dec (:armies from2)))]
+                (bot/log (str "From " (:id from2) " to " (:id to) " need " armies " to win. Have " (:armies from2) ". Need " needed-armies " more. Have " (:starting_armies state) " left to place."))
                 (cond
-                    (> (:armies from) armies)
-                        (let [next-state (update-in state [:regions (:id from) :armies] #(- % armies))]
+                    (<= needed-armies 0)
+                        (let [next-state (update-in state [:regions (:id from2) :armies] #(- % armies))]
+                            (bot/log "  enough to attack so removed the armies needed. Now we have " (get-in state [:regions (:id from2) :armies]))
                             [next-state placements])
-                    (> (:starting_armies state) needed-armies)
-                        (let [next-state    (assoc-in state [:regions (:id from) :armies] 1)
-                              next-state2   (update-in state [:starting_armies] #(- % needed-armies))
+                    (>= (:starting_armies state) needed-armies)
+                        (let [next-state    (assoc-in state [:regions (:id from2) :armies] 1)
+                              next-state2   (update-in next-state [:starting_armies] #(- % needed-armies))
                               placement     {:region from :armies needed-armies}]
-                            ; (bot/log (str "Placing " needed-armies " armies on " (:id from) " so that we can attack " (:id to) " " armies "v" (:armies to)))
+                            (bot/log (str "  Placing " needed-armies " armies on " (:id from2) " so that we can attack " (:id to) " " armies "v" (:armies to) ". This leaves " (get-in next-state2 [:regions (:id from2) :armies]) " behind."))
                             [next-state2 (conj placements placement)])
                     :else
                         [state placements]))))
@@ -87,7 +89,9 @@
     (let [targets            (ranked_targets state (our_regions state))
           [state placements] (reduce place_required_armies [state []] targets)
           final_placement    {:region (:from (first targets)) :armies (:starting_armies state)}]
-        (conj placements final_placement)))
+        (if (zero? (:starting_armies state))
+            placements
+            (conj placements final_placement))))
 
 (defn attack_when_appropriate
     [[state attacks] {:keys [from to armies] :as attack}]
