@@ -45,3 +45,6 @@ go place_armies 9614
 Output from your bot: "player1 place_armies 17 2,player1 place_armies 17 2,player1 place_armies 17 1,"
 
 # Valid: player1 place_armies 17 2,player1 place_armies 17 3,
+
+## It's also reasonable to go after the opponent's super region
+# Valid: player1 place_armies 2 2,player1 place_armies 17 2,player1 place_armies 2 1,

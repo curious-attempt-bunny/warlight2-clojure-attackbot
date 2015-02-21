@@ -41,3 +41,4 @@ go place_armies 8618
 Output from your bot: "player1 place_armies 4 2,player1 place_armies 4 2,"
 
 # Valid: player1 place_armies 4 2,player1 place_armies 4 2,player1 place_armies 4 1,
+# Valid: player1 place_armies 4 2,player1 place_armies 4 3,

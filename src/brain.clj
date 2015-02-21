@@ -44,6 +44,19 @@
     [state region]
     (map (fn [region_id] (get-in state [:regions region_id])) (:neighbours region)))
 
+(defn enemy_neighbours
+    [state region]
+    (->> (neighbours state region)
+        (remove #(= :us (:owner %)))))
+
+(defn super_region
+    [state region]
+    (get-in state [:super_regions (:super_region_id region)]))
+
+(defn super_regions
+    [state regions]
+    (set (map (partial super_region state) regions)))
+
 (defn targets
     [state from_regions]
     (mapcat
@@ -52,9 +65,43 @@
                 (remove ours? (neighbours state region))))
         from_regions))
 
+(defn super_region_armies
+    [state super_region]
+    (let [armies (->> (vals (:regions state))
+                        (filter #(= (:super_region_id %) (:id super_region)))
+                        (filter #(not= :us (:owner %)))
+                        (map :armies)
+                        (reduce +))]
+        armies))
+
+(defn super_region_score
+    ([state super_region] (super_region_score state super_region 0))
+    ([state super_region army_delta]
+        (let [reward (:reward super_region)
+              armies (- (super_region_armies state super_region) army_delta)
+              score  (if (zero? armies) reward (/ reward armies))]
+            ; (bot/log (:super_regions state))
+            ; (bot/log (str "super region " super_region " scores " score))
+            score)))
+
+(defn target_score
+    [state {:keys [to]}]
+    ; (bot/log to)
+    (let [neighbours    (enemy_neighbours state to)
+          super_regions (super_regions state neighbours)
+          best_super    (last (sort-by (fn [super_region] (super_region_score state super_region)) super_regions))
+          neighbours_in_super (filter (fn [region] (= (:id best_super) (get-in state [:regions (:id region) :super_region_id]))) neighbours)
+          best_score    (+
+                          (* 10000 (if (nil? best_super) 0 (super_region_score state best_super)))
+                          (* 10 (count neighbours_in_super))
+                          (count neighbours))]
+                    ; (bot/log [(:id to) best_score best_super neighbours_in_super])
+                    best_score))
+
 (defn ranked_targets
     [state from_regions]
-    (targets state from_regions))
+    (->> (targets state from_regions)
+        (sort-by (partial target_score state) >)))
 
 (defn pick_starting_region
     [state ids]
