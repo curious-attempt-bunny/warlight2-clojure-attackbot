@@ -34,5 +34,5 @@
       (filter identity)
       (map last)
       (map verify))
-    ; (verify "AttackForProfit")
+    ; (verify "PreferSmallerSuperRegions")
 )
