@@ -75,7 +75,7 @@
                     true)
                 (assoc-in
                     [:regions (Integer/parseInt region_id) :armies]
-                    10)))
+                    6)))
         state
         wasteland_ids))
 
