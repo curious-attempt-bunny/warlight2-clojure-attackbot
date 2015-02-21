@@ -82,7 +82,7 @@
               super_region_size (count (filter (fn [region] (= (:id super_region) (:super_region_id region))) (regions state)))              
               score  (+
                         (if (zero? armies) reward (/ reward armies))
-                        (/ 1 super_region_size))]
+                        (if (zero? reward) 0 (/ 1 super_region_size)))]
             ; (bot/log (:super_regions state))
             ; (bot/log (str "super region " (:id super_region) " scores " score " because of reward " reward " and armies " armies " and size " super_region_size))
             score)))
