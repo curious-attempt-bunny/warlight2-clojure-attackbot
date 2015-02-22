@@ -1,0 +1,52 @@
+# http://theaigames.com/competitions/warlight-ai-challenge-2/games/54e9efd74b5ab23256da3d1d
+
+settings timebank 10000
+
+settings time_per_move 500
+
+settings max_rounds 60
+
+settings your_bot player1
+
+settings opponent_bot player2
+
+setup_map super_regions 1 1 2 6 3 5 4 2
+
+setup_map regions 1 1 2 1 3 2 4 2 5 2 6 2 7 2 8 2 9 3 10 3 11 3 12 3 13 3 14 3 15 4 16 4 17 4 18 4 19 4
+
+setup_map neighbors 1 2 2 3,5,9 3 4,8,6,5 4 8,7 5 6,9 6 8,11,9,12 7 15,12,8,17 8 12 9 11,10 10 11,13 11 16,13,12 12 17,16 13 16,14 15 17,18 16 17,19 17 19,18
+
+setup_map wastelands 14 15
+
+settings starting_regions 1 7 10 19
+
+settings starting_pick_amount 2
+
+pick_starting_region 10000 1 7 10 19
+
+Output from your bot: "1"
+
+pick_starting_region 7681 7
+
+Output from your bot: "7"
+
+setup_map opponent_starting_regions 19 10
+
+settings starting_armies 5
+
+update_map 1 player1 2 7 player1 2 2 neutral 2 4 neutral 2 15 neutral 6 12 neutral 2 8 neutral 2 17 neutral 2
+
+opponent_moves
+
+Round 1
+
+go place_armies 8167
+
+Output from your bot: "player1 place_armies 1 2,player1 place_armies 7 2,player1 place_armies 1 1,"
+
+go attack/transfer 8567
+
+Output from your bot: "player1 attack/transfer 1 2 3,player1 attack/transfer 7 8 3,player1 attack/transfer 1 2 1,"
+
+## Attack with full strength (don't leave 2 behind in a dead end)
+# Valid: [player1 attack/transfer 1 2 4,]

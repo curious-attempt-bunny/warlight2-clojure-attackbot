@@ -207,13 +207,21 @@
             (empty? attacks)
                 (transfers state)
             :else
-                (let [{:keys [from to armies] :as an_attack} (first attacks)]
+                (let [{:keys [from to armies]} (first attacks)
+                      from                     (get-in state [:regions (:id from)])
+                      to                       (get-in state [:regions (:id to)])
+                      from_deadend             (= 1 (count (enemy_neighbours state from)))
+                      to_deadend               (= 1 (count (enemy_neighbours state to)))
+                      armies                   (if (and from_deadend (not to_deadend))
+                                                    (dec (:armies from))
+                                                    armies)]
                     ; (bot/log (str "considering " (:id from) " to " (:id to) " - enough? " (> (:armies from) armies)))
                     (if (> (:armies from) armies)
                         (let [state (update-in state [:regions (:id from) :armies] #(- % armies))
                               state (assoc-in state [:regions (:id to) :owner] :us)
                               state (assoc-in state [:regions (:id to) :newly-captured] true)
-                              next  (attack state)]
+                              next  (attack state)
+                              att   {:from from :to to :armies armies}]
                             ; (bot/log (str an_attack next))
-                            (conj next an_attack))
+                            (conj next att))
                         (attack state (rest attacks)))))))
