@@ -34,7 +34,7 @@
 
 (defn ours?
     [region]
-    (= :us (:owner region)))
+    (and (= :us (:owner region)) (not= false (:newly-captured region))))
 
 (defn our_regions
     [state]
@@ -169,16 +169,20 @@
 
 (defn attack
     ([state] 
+        ; (bot/log "considering attacks")
         (attack state (ranked_attack_targets state (our_regions state))))
     ([state attacks]
         (cond
-            (zero? (:starting_armies state))
-                []
             (empty? attacks)
                 []
             :else
-                (let [{:keys [from to armies] :as attack} (first attacks)]
+                (let [{:keys [from to armies] :as an_attack} (first attacks)]
+                    ; (bot/log (str "considering " (:id from) " to " (:id to) " - enough? " (> (:armies from) armies)))
                     (if (> (:armies from) armies)
-                        (let [next-state  (update-in state [:regions (:id from) :armies] #(- % armies))
-                              next-state2 (update-in next-state [:regions (:id to) :owner] :us)]
-                            (conj (attack next-state2) attack)))))))
+                        (let [next-state   (update-in state [:regions (:id from) :armies] #(- % armies))
+                              next-state2  (assoc-in next-state [:regions (:id to) :owner] :us)
+                              next-state3  (assoc-in next-state2 [:regions (:id to) :newly-captured] true)
+                              next-attacks (attack next-state3)]
+                            ; (bot/log (str an_attack next-attacks))
+                            (conj next-attacks an_attack))
+                        (attack state (rest attacks)))))))
