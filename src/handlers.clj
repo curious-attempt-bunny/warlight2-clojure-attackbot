@@ -154,7 +154,7 @@
                         (+ armies addition)))))
         (reduce
             (fn [state region_id]
-                (if (= (:our_name state) (get-in state [:regions region_id :owner]))
+                (if (= :us (get-in state [:regions region_id :owner]))
                     (assoc-in state
                         [:regions region_id :owner]
                         :them)
