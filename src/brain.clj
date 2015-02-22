@@ -76,7 +76,7 @@
                         (if (zero? armies) reward (/ reward armies))
                         (if (zero? reward) 0 (/ 1 super_region_size)))]
             ; (bot/log (:super_regions state))
-            (bot/log (str "super region " (:id super_region) " scores " score " because of reward " reward " and armies " armies " and size " super_region_size))
+            ; (bot/log (str "super region " (:id super_region) " scores " score " because of reward " reward " and armies " armies " and size " super_region_size))
             score)))
 
 (defn update_super_region_scores
@@ -94,7 +94,7 @@
 (defn region_pick_score
     [state region]
     (let [score (get-in state [:super_regions (:super_region_id region) :score])]
-        (bot/log (str "Region " (:id region) " scores " score))
+        ; (bot/log (str "Region " (:id region) " scores " score))
         score))
 
 (defn ranked_pick_regions
@@ -167,22 +167,18 @@
             placements
             (conj placements final_placement))))
 
-(defn attack_when_appropriate
-    [[state attacks] {:keys [from to armies] :as attack}]
-    (let [from2 (get-in state [:regions (:id from)])
-          to2   (get-in state [:regions (:id to)])] ; may have been updated
-        ; (bot/log [(:id from) (:id to) (:armies from2) (:armies to)])
-        (cond
-            (and (> (:armies from2) armies) (not= :us (:owner to2)))
-                (let [next-state  (update-in state [:regions (:id from) :armies] #(- % armies))
-                      next-state2 (update-in next-state [:regions (:id to) :owner] :us)]
-                    ; (bot/log [(:id from) (:id to)])
-                    [next-state2 (conj attacks attack)])
-            :else
-                [state attacks])))
-
 (defn attack
-    [state]
-    ; [])
-    (last (reduce attack_when_appropriate [state []] (ranked_attack_targets state (our_regions state)))))
-        
+    ([state] 
+        (attack state (ranked_attack_targets state (our_regions state))))
+    ([state attacks]
+        (cond
+            (zero? (:starting_armies state))
+                []
+            (empty? attacks)
+                []
+            :else
+                (let [{:keys [from to armies] :as attack} (first attacks)]
+                    (if (> (:armies from) armies)
+                        (let [next-state  (update-in state [:regions (:id from) :armies] #(- % armies))
+                              next-state2 (update-in next-state [:regions (:id to) :owner] :us)]
+                            (conj (attack next-state2) attack)))))))
