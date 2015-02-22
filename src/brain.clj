@@ -57,14 +57,6 @@
     [state regions]
     (set (map (partial super_region state) regions)))
 
-(defn targets
-    [state from_regions]
-    (mapcat
-        (fn [region]
-            (map (fn [neighbour] {:from region :to neighbour :armies (armies_to_kill (:armies neighbour))})
-                (remove ours? (neighbours state region))))
-        from_regions))
-
 (defn super_region_armies
     [state super_region]
     (let [armies (->> (vals (:regions state))
@@ -84,31 +76,60 @@
                         (if (zero? armies) reward (/ reward armies))
                         (if (zero? reward) 0 (/ 1 super_region_size)))]
             ; (bot/log (:super_regions state))
-            ; (bot/log (str "super region " (:id super_region) " scores " score " because of reward " reward " and armies " armies " and size " super_region_size))
+            (bot/log (str "super region " (:id super_region) " scores " score " because of reward " reward " and armies " armies " and size " super_region_size))
             score)))
 
-(defn target_score
-    [state {:keys [to]}]
-    ; (bot/log to)
-    (let [neighbours    (enemy_neighbours state to)
-          best_super    (super_region state to)
-          neighbours_in_super (filter (fn [region] (= (:id best_super) (get-in state [:regions (:id region) :super_region_id]))) neighbours)
-          best_score    (+
-                          (* 10000 (super_region_score state best_super))
-                          (* 10 (count neighbours_in_super))
-                          (count neighbours))]
-                    ; (bot/log (str "Region " (:id to) " scores " best_score " as a target. The super region is " (pr-str best_super) ". Neighbours in super " (pr-str (map :id neighbours_in_super)) ". Neighbours " (pr-str (map :id neighbours))))
-                    best_score))
+(defn update_super_region_scores
+    [state]
+    (reduce
+        (fn [state super_region]
+            (assoc-in state
+                [:super_regions (:id super_region) :score]
+                (super_region_score state super_region)))
+        state
+        (vals (:super_regions state))))
 
-(defn ranked_targets
+;; ----- picking regions
+
+(defn region_pick_score
+    [state region]
+    (let [score (get-in state [:super_regions (:super_region_id region) :score])]
+        (bot/log (str "Region " (:id region) " scores " score))
+        score))
+
+(defn ranked_pick_regions
     [state from_regions]
-    (->> (targets state from_regions)
-        (sort-by (partial target_score state) >)))
+    (let [state (update_super_region_scores state)]
+        (sort-by (partial region_pick_score state) > from_regions)))
 
 (defn pick_starting_region
     [state ids]
-    (let [{:keys [from]} (first (ranked_targets state (regions state ids)))]
-        (:id from)))
+    (let [region (first (ranked_pick_regions state (regions state ids)))]
+        (:id region)))
+
+;; ----- placement and attacking
+
+(defn targets
+    [state from_regions]
+    (mapcat
+        (fn [region]
+            (map (fn [neighbour] {:from region :to neighbour :armies (armies_to_kill (:armies neighbour))})
+                (remove ours? (neighbours state region))))
+        from_regions))
+
+(defn target_attack_score
+    [state {:keys [from to armies]}]
+    (let [required-armies    (inc armies)
+          extra-armies       (max 0 (- required-armies (:armies from)))
+          super-region-score (:score (super_region state to))
+          score              (/ super-region-score (inc extra-armies))]
+        score))
+
+(defn ranked_attack_targets
+    [state from_regions]
+    (let [state (update_super_region_scores state)]
+        (->> (targets state from_regions)
+            (sort-by (partial target_attack_score state) >))))
 
 (defn place_required_armies
     [[state placements] {:keys [from to armies]}]
@@ -139,7 +160,7 @@
 
 (defn place_armies
     [state]
-    (let [targets            (ranked_targets state (our_regions state))
+    (let [targets            (ranked_attack_targets state (our_regions state))
           [state placements] (reduce place_required_armies [state []] targets)
           final_placement    {:region (:from (first targets)) :armies (:starting_armies state)}]
         (if (zero? (:starting_armies state))
@@ -162,5 +183,6 @@
 
 (defn attack
     [state]
-    (last (reduce attack_when_appropriate [state []] (ranked_targets state (our_regions state)))))
+    ; [])
+    (last (reduce attack_when_appropriate [state []] (ranked_attack_targets state (our_regions state)))))
         

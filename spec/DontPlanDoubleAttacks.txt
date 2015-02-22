@@ -65,4 +65,4 @@ go place_armies 8823
 Output from your bot: "player1 place_armies 7 3,player1 place_armies 4 2,"
 
 ## Round 2 - don't plan double attacks
-# Valid: ![player1 place_armies 7]
+# Valid: ![player1 place_armies 7 ]
