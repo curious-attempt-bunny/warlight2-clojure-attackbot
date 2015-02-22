@@ -49,6 +49,15 @@
     (->> (neighbours state region)
         (remove #(= :us (:owner %)))))
 
+(defn border_regions
+    [state]
+    (->> (our_regions state)
+        (filter (fn [region]
+            (some (fn [neighbour_id]
+                    (not= :us
+                        (get-in state [:regions neighbour_id :owner])))
+                (:neighbours region))))))
+
 (defn super_region
     [state region]
     (get-in state [:super_regions (:super_region_id region)]))
@@ -172,6 +181,23 @@
             placements
             (conj placements final_placement))))
 
+(defn transfers
+    ([state]
+        (transfers state (border_regions state) (set (map :id (border_regions state)))))
+    ([state regions considered]
+        (if (empty? regions)
+            []
+            (let [region          (first regions)
+                  neighbours      (:neighbours region)
+                  unvisited       (filter #(not (contains? considered %)) neighbours)
+                  resolved        (map #(get-in state [:regions %]) unvisited)
+                  ours            (filter ours? resolved)
+                  next-regions    (concat (rest regions) ours)
+                  next-considered (clojure.set/union considered (set (map :id ours)))
+                  with_armies     (filter #(> (:armies %) 1) ours)
+                  moves           (map (fn [source] {:from source :to region :armies (dec (:armies source))}) with_armies)]
+                (concat moves (transfers state next-regions next-considered))))))
+
 (defn attack
     ([state] 
         ; (bot/log "considering attacks")
@@ -179,7 +205,7 @@
     ([state attacks]
         (cond
             (empty? attacks)
-                []
+                (transfers state)
             :else
                 (let [{:keys [from to armies] :as an_attack} (first attacks)]
                     ; (bot/log (str "considering " (:id from) " to " (:id to) " - enough? " (> (:armies from) armies)))
