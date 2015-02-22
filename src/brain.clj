@@ -47,7 +47,7 @@
 (defn enemy_neighbours
     [state region]
     (->> (neighbours state region)
-        (remove #(= :us (:owner %)))))
+        (remove ours?)))
 
 (defn border_regions
     [state]
@@ -211,11 +211,11 @@
                       from                     (get-in state [:regions (:id from)])
                       to                       (get-in state [:regions (:id to)])
                       from_deadend             (= 1 (count (enemy_neighbours state from)))
-                      to_deadend               (= 1 (count (enemy_neighbours state to)))
+                      to_deadend               (empty? (enemy_neighbours state to))
                       armies                   (if (and from_deadend (not to_deadend))
                                                     (dec (:armies from))
                                                     armies)]
-                    ; (bot/log (str "considering " (:id from) " to " (:id to) " - enough? " (> (:armies from) armies)))
+                    ; (bot/log (str "considering " (:id from) " to " (:id to) " - enough? " (> (:armies from) armies) " - from_deadend? " from_deadend " to_deadend " to_deadend))
                     (if (> (:armies from) armies)
                         (let [state (update-in state [:regions (:id from) :armies] #(- % armies))
                               state (assoc-in state [:regions (:id to) :owner] :us)
