@@ -115,21 +115,25 @@
     (cond
         (zero? (:starting_armies state))
             [state placements]
+        (= :us (get-in state [:regions (:id to) :owner]))
+            [state placements]
         :else
             (let [from2         (get-in state [:regions (:id from)]) ; may have been updated
                   needed-armies (- armies (dec (:armies from2)))]
                 (bot/log (str "From " (:id from2) " to " (:id to) " need " armies " to win. Have " (:armies from2) ". Need " needed-armies " more. Have " (:starting_armies state) " left to place."))
                 (cond
                     (<= needed-armies 0)
-                        (let [next-state (update-in state [:regions (:id from2) :armies] #(- % armies))]
+                        (let [next-state (update-in state [:regions (:id from2) :armies] #(- % armies))
+                              next-state2 (update-in next-state [:regions (:id to) :owner] :us)]
                             (bot/log (str "  enough to attack so removed the armies needed. Now we have " (get-in state [:regions (:id from2) :armies])))
-                            [next-state placements])
+                            [next-state2 placements])
                     (>= (:starting_armies state) needed-armies)
                         (let [next-state    (assoc-in state [:regions (:id from2) :armies] 1)
                               next-state2   (update-in next-state [:starting_armies] #(- % needed-armies))
+                              next-state3   (update-in next-state2 [:regions (:id to) :owner] :us)
                               placement     {:region from :armies needed-armies}]
                             (bot/log (str "  Placing " needed-armies " armies on " (:id from2) " so that we can attack " (:id to) " " armies "v" (:armies to) ". This leaves " (get-in next-state2 [:regions (:id from2) :armies]) " behind."))
-                            [next-state2 (conj placements placement)])
+                            [next-state3 (conj placements placement)])
                     :else
                         [state placements]))))
 
