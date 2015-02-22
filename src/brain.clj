@@ -181,9 +181,20 @@
             placements
             (conj placements final_placement))))
 
+(defn transfer_region_score
+    [state region]
+    (:armies region))
+
+(defn ranked_transfer_regions
+    [state regions]
+    (sort-by
+        (partial transfer_region_score state)
+        >
+        regions))
+
 (defn transfers
     ([state]
-        (transfers state (border_regions state) (set (map :id (border_regions state)))))
+        (transfers state (ranked_transfer_regions state (border_regions state)) (set (map :id (border_regions state)))))
     ([state regions considered]
         (if (empty? regions)
             []
