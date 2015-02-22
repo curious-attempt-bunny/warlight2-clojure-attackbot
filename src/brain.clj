@@ -165,7 +165,7 @@
             (let [from          (get-in state [:regions (:id from)]) ; may have been updated
                   to            (get-in state [:regions (:id to)])
                   needed-armies (- armies (dec (:armies from)))]
-                ; (bot/log (str "From " (:id from) " to " (:id to) " need " armies " to win. Have " (:armies from) ". Need " needed-armies " more. Have " (:starting_armies state) " left to place."))
+                (bot/log (str "From " (:id from) " to " (:id to) " need " armies " to win. Have " (:armies from) ". Need " needed-armies " more. Have " (:starting_armies state) " left to place."))
                 (cond
                     (= true (:newly-captured to))
                         [state placements]
@@ -175,17 +175,18 @@
                               state (assoc-in state [:regions (:id to) :newly-captured] true)
                               remaining_armies (- armies (attackers_killed armies))
                               state (assoc-in state [:regions (:id to) :armies] remaining_armies)]
-                            ; (bot/log (str "  enough to attack so removed the armies needed. Now we have " (get-in state [:regions (:id from) :armies])))
+                            (bot/log (str "  enough to attack so removed the armies needed. Now we have " (get-in state [:regions (:id from) :armies])))
                             [state placements])
                     (>= (:starting_armies state) needed-armies)
-                        (let [state     (update-in state [:regions (:id from) :armies] #(- % armies))
+                        (let [state     (update-in state [:regions (:id from) :armies] (partial + needed-armies))
+                              state     (update-in state [:regions (:id from) :armies] #(- % armies))
                               state     (update-in state [:starting_armies] #(- % needed-armies))
                               state     (update-in state [:regions (:id to) :owner] :us)
                               state     (assoc-in state [:regions (:id to) :newly-captured] true)
                               placement {:region from :armies needed-armies}
                               remaining_armies (- armies (attackers_killed armies))
                               state (assoc-in state [:regions (:id to) :armies] remaining_armies)]
-                            ; (bot/log (str "  Placing " needed-armies " armies on " (:id from) " so that we can attack " (:id to) " " armies "v" (:armies to) ". This leaves " (get-in state [:regions (:id from) :armies]) " behind."))
+                            (bot/log (str "  Placing " needed-armies " armies on " (:id from) " so that we can attack " (:id to) " " armies "v" (:armies to) ". This leaves " (get-in state [:regions (:id from) :armies]) " behind."))
                             [state (conj placements placement)])
                     :else
                         [state placements]))))
