@@ -140,21 +140,26 @@
             [state placements]
         :else
             (let [from2         (get-in state [:regions (:id from)]) ; may have been updated
+                  to2           (get-in state [:regions (:id to)])
                   needed-armies (- armies (dec (:armies from2)))]
                 (bot/log (str "From " (:id from2) " to " (:id to) " need " armies " to win. Have " (:armies from2) ". Need " needed-armies " more. Have " (:starting_armies state) " left to place."))
                 (cond
+                    (= true (:newly-captured to2))
+                        [state placements]
                     (<= needed-armies 0)
                         (let [next-state (update-in state [:regions (:id from2) :armies] #(- % armies))
-                              next-state2 (update-in next-state [:regions (:id to) :owner] :us)]
+                              next-state2 (update-in next-state [:regions (:id to) :owner] :us)
+                              next-state3 (assoc-in next-state2 [:regions (:id to) :newly-captured] true)]
                             (bot/log (str "  enough to attack so removed the armies needed. Now we have " (get-in state [:regions (:id from2) :armies])))
-                            [next-state2 placements])
+                            [next-state3 placements])
                     (>= (:starting_armies state) needed-armies)
                         (let [next-state    (assoc-in state [:regions (:id from2) :armies] 1)
                               next-state2   (update-in next-state [:starting_armies] #(- % needed-armies))
                               next-state3   (update-in next-state2 [:regions (:id to) :owner] :us)
+                              next-state4   (assoc-in next-state3 [:regions (:id to) :newly-captured] true)
                               placement     {:region from :armies needed-armies}]
                             (bot/log (str "  Placing " needed-armies " armies on " (:id from2) " so that we can attack " (:id to) " " armies "v" (:armies to) ". This leaves " (get-in next-state2 [:regions (:id from2) :armies]) " behind."))
-                            [next-state3 (conj placements placement)])
+                            [next-state4 (conj placements placement)])
                     :else
                         [state placements]))))
 
