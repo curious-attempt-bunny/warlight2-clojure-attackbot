@@ -25,6 +25,12 @@
     [defending_armies]
     (nth (concat [0 2 3] (iterate (partial + 2) 5)) defending_armies))
 
+(defn attackers_killed
+    [defending_armies]
+    (java.lang.Math/round (+
+        (* (* 0.7 defending_armies) (- 1 0.16))
+        (* defending_armies 0.16))))
+
 (defn regions
     ([state]
         (vals (:regions state)))
@@ -34,11 +40,19 @@
 
 (defn ours?
     [region]
-    (and (= :us (:owner region)) (not= false (:newly-captured region))))
+    (= :us (:owner region)))
+
+(defn ours_at_start_of_turn?
+    [region]
+    (and (ours? region) (not= true (:newly-captured region))))
 
 (defn our_regions
     [state]
     (filter ours? (regions state)))
+
+(defn our_starting_regions
+    [state]
+    (filter ours_at_start_of_turn? (regions state)))
 
 (defn neighbours
     [state region]
@@ -151,23 +165,27 @@
             (let [from          (get-in state [:regions (:id from)]) ; may have been updated
                   to            (get-in state [:regions (:id to)])
                   needed-armies (- armies (dec (:armies from)))]
-                (bot/log (str "From " (:id from) " to " (:id to) " need " armies " to win. Have " (:armies from) ". Need " needed-armies " more. Have " (:starting_armies state) " left to place."))
+                ; (bot/log (str "From " (:id from) " to " (:id to) " need " armies " to win. Have " (:armies from) ". Need " needed-armies " more. Have " (:starting_armies state) " left to place."))
                 (cond
                     (= true (:newly-captured to))
                         [state placements]
                     (<= needed-armies 0)
                         (let [state (update-in state [:regions (:id from) :armies] #(- % armies))
                               state (update-in state [:regions (:id to) :owner] :us)
-                              state (assoc-in state [:regions (:id to) :newly-captured] true)]
-                            (bot/log (str "  enough to attack so removed the armies needed. Now we have " (get-in state [:regions (:id from) :armies])))
+                              state (assoc-in state [:regions (:id to) :newly-captured] true)
+                              remaining_armies (- armies (attackers_killed armies))
+                              state (assoc-in state [:regions (:id to) :armies] remaining_armies)]
+                            ; (bot/log (str "  enough to attack so removed the armies needed. Now we have " (get-in state [:regions (:id from) :armies])))
                             [state placements])
                     (>= (:starting_armies state) needed-armies)
-                        (let [state     (assoc-in state [:regions (:id from) :armies] 1)
+                        (let [state     (update-in state [:regions (:id from) :armies] #(- % armies))
                               state     (update-in state [:starting_armies] #(- % needed-armies))
                               state     (update-in state [:regions (:id to) :owner] :us)
                               state     (assoc-in state [:regions (:id to) :newly-captured] true)
-                              placement {:region from :armies needed-armies}]
-                            (bot/log (str "  Placing " needed-armies " armies on " (:id from) " so that we can attack " (:id to) " " armies "v" (:armies to) ". This leaves " (get-in state [:regions (:id from) :armies]) " behind."))
+                              placement {:region from :armies needed-armies}
+                              remaining_armies (- armies (attackers_killed armies))
+                              state (assoc-in state [:regions (:id to) :armies] remaining_armies)]
+                            ; (bot/log (str "  Placing " needed-armies " armies on " (:id from) " so that we can attack " (:id to) " " armies "v" (:armies to) ". This leaves " (get-in state [:regions (:id from) :armies]) " behind."))
                             [state (conj placements placement)])
                     :else
                         [state placements]))))
@@ -183,6 +201,7 @@
 
 (defn transfer_region_score
     [state region]
+    ; (bot/log (str "region " (:id region) " has transfer score " (:armies region)))
     (:armies region))
 
 (defn ranked_transfer_regions
@@ -194,6 +213,7 @@
 
 (defn transfers
     ([state]
+        ; (bot/log "considering transfers")
         (transfers state (ranked_transfer_regions state (border_regions state)) (set (map :id (border_regions state)))))
     ([state regions considered]
         (if (empty? regions)
@@ -207,12 +227,13 @@
                   next-considered (clojure.set/union considered (set (map :id ours)))
                   with_armies     (filter #(> (:armies %) 1) ours)
                   moves           (map (fn [source] {:from source :to region :armies (dec (:armies source))}) with_armies)]
+                ; (bot/log (str "transfers " (pr-str moves)))
                 (concat moves (transfers state next-regions next-considered))))))
 
 (defn attack
     ([state] 
         ; (bot/log "considering attacks")
-        (attack state (ranked_attack_targets state (our_regions state))))
+        (attack state (ranked_attack_targets state (our_starting_regions state))))
     ([state attacks]
         (cond
             (empty? attacks)
@@ -224,15 +245,14 @@
                       from_deadend             (= 1 (count (enemy_neighbours state from)))
                       to_deadend               (empty? (enemy_neighbours state to))
                       armies                   (if (and from_deadend (not to_deadend))
-                                                    (dec (:armies from))
+                                                    (max armies (dec (:armies from)))
                                                     armies)]
-                    ; (bot/log (str "considering " (:id from) " to " (:id to) " - enough? " (> (:armies from) armies) " - from_deadend? " from_deadend " to_deadend " to_deadend))
+                    ; (bot/log (str "considering " (:id from) " to " (:id to) (:owner to) " - enough? " (> (:armies from) armies) " - from_deadend? " from_deadend " to_deadend " to_deadend))
                     (if (> (:armies from) armies)
                         (let [state (update-in state [:regions (:id from) :armies] #(- % armies))
                               state (assoc-in state [:regions (:id to) :owner] :us)
                               state (assoc-in state [:regions (:id to) :newly-captured] true)
                               next  (attack state)
                               att   {:from from :to to :armies armies}]
-                            ; (bot/log (str an_attack next))
                             (conj next att))
                         (attack state (rest attacks)))))))
