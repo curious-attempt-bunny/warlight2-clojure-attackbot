@@ -145,7 +145,8 @@
     (let [required-armies    (inc armies)
           extra-armies       (max 0 (- required-armies (:armies from)))
           super-region-score (:score (super_region state to))
-          score              (/ super-region-score (inc extra-armies))]
+          multiplier         (if (= :them (:owner to)) 2.0 1.0)
+          score              (* multiplier (/ super-region-score (inc extra-armies)))]
         score))
 
 (defn ranked_attack_targets
@@ -244,8 +245,8 @@
                       from                     (get-in state [:regions (:id from)])
                       to                       (get-in state [:regions (:id to)])
                       from_deadend             (= 1 (count (enemy_neighbours state from)))
-                      to_deadend               (empty? (enemy_neighbours state to))
-                      armies                   (if (and from_deadend (not to_deadend))
+                      ; to_deadend               (empty? (enemy_neighbours state to))
+                      armies                   (if (and from_deadend) ; (not to_deadend))
                                                     (max armies (dec (:armies from)))
                                                     armies)]
                     ; (bot/log (str "considering " (:id from) " to " (:id to) (:owner to) " - enough? " (> (:armies from) armies) " - from_deadend? " from_deadend " to_deadend " to_deadend))
